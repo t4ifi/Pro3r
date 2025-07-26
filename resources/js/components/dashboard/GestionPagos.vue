@@ -101,11 +101,10 @@
           <div class="form-group">
             <label>💵 Monto Total</label>
             <input 
-              type="number" 
+              type="text" 
               v-model="nuevoPago.monto_total" 
-              step="0.01" 
-              min="0.01"
-              placeholder="0.00"
+              @input="formatearInputMonto($event, 'monto_total')"
+              placeholder="0"
               required
             >
           </div>
@@ -308,14 +307,15 @@
                 <div class="form-group">
                   <label>💵 Monto a Pagar</label>
                   <input 
-                    type="number" 
+                    type="text" 
                     v-model="pago.monto_cuota" 
-                    :max="pago.saldo_restante"
-                    step="0.01" 
-                    min="0.01"
-                    placeholder="0.00"
+                    @input="formatearInputMonto($event, 'monto_cuota', pago)"
+                    placeholder="0"
                     required
                   >
+                  <div v-if="pago.monto_cuota && !validarMontoCuota(pago)" class="error-monto">
+                    ⚠️ El monto no puede exceder el saldo restante (${{ formatearMonto(pago.saldo_restante) }})
+                  </div>
                 </div>
                 
                 <div class="form-group">
@@ -347,7 +347,7 @@
                 >
               </div>
 
-              <button type="submit" class="btn-pagar" :disabled="cargando">
+              <button type="submit" class="btn-pagar" :disabled="cargando || !validarMontoCuota(pago)">
                 <i class='bx bx-credit-card'></i>
                 {{ cargando ? 'Procesando...' : 'Registrar Pago' }}
               </button>
@@ -359,7 +359,6 @@
           <p>✅ Este paciente no tiene pagos pendientes.</p>
         </div>
       </div>
-
     </div>
 
     <!-- Mensajes de éxito/error -->
@@ -409,11 +408,9 @@ export default {
   },
   
   methods: {
+    // === MÉTODOS PRINCIPALES ===
     async inicializar() {
       try {
-        // Primero inicializar la sesión
-        await this.inicializarSesion();
-        // Luego cargar los datos
         await this.cargarDatos();
       } catch (error) {
         this.mostrarMensaje('Error al inicializar la aplicación', 'error');
@@ -444,35 +441,7 @@ export default {
         this.cargando = false;
       }
     },
-    
-    async inicializarSesion() {
-      // Simular inicio de sesión para pruebas - usar el primer dentista disponible
-      try {
-        const response = await fetch('/api/pagos/init-session', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          }
-        });
-        
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        if (data.success) {
-          console.log('Sesión inicializada para usuario:', data.usuario.nombre);
-          return data;
-        } else {
-          throw new Error(data.message || 'Error al inicializar sesión');
-        }
-      } catch (error) {
-        console.error('Error al inicializar sesión:', error);
-        throw error;
-      }
-    },
-    
+
     mostrarOpcion(opcion) {
       this.opcionActiva = opcion;
       this.limpiarMensaje();
@@ -482,13 +451,19 @@ export default {
       try {
         this.cargando = true;
         
+        // Preparar datos limpiando los montos formateados
+        const datosLimpios = {
+          ...this.nuevoPago,
+          monto_total: this.limpiarMonto(this.nuevoPago.monto_total)
+        };
+        
         const response = await fetch('/api/pagos/registrar', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
           },
-          body: JSON.stringify(this.nuevoPago)
+          body: JSON.stringify(datosLimpios)
         });
         
         const data = await response.json();
@@ -563,6 +538,20 @@ export default {
     
     async registrarCuota(pago) {
       try {
+        // Validación del lado del cliente
+        const montoLimpio = parseFloat(this.limpiarMonto(pago.monto_cuota));
+        const saldoRestante = parseFloat(pago.saldo_restante);
+        
+        if (!montoLimpio || montoLimpio <= 0) {
+          this.mostrarMensaje('El monto debe ser mayor a 0', 'error');
+          return;
+        }
+        
+        if (montoLimpio > saldoRestante) {
+          this.mostrarMensaje(`El monto no puede exceder el saldo restante ($${this.formatearMonto(saldoRestante)})`, 'error');
+          return;
+        }
+        
         this.cargando = true;
         
         const response = await fetch('/api/pagos/cuota', {
@@ -573,7 +562,7 @@ export default {
           },
           body: JSON.stringify({
             pago_id: pago.id,
-            monto_cuota: pago.monto_cuota,
+            monto_cuota: this.limpiarMonto(pago.monto_cuota),
             fecha_pago: pago.fecha_cuota,
             descripcion: pago.descripcion_cuota,
             numero_cuota: pago.numero_cuota
@@ -598,9 +587,58 @@ export default {
     },
     
     calcularMontoCuota() {
-      if (!this.nuevoPago.monto_total || !this.nuevoPago.total_cuotas) return '0.00';
-      const monto = parseFloat(this.nuevoPago.monto_total) / parseInt(this.nuevoPago.total_cuotas);
-      return monto.toFixed(2);
+      if (!this.nuevoPago.monto_total || !this.nuevoPago.total_cuotas) return '0';
+      const montoLimpio = this.limpiarMonto(this.nuevoPago.monto_total);
+      const monto = parseFloat(montoLimpio) / parseInt(this.nuevoPago.total_cuotas);
+      return this.formatearMontoInput(monto);
+    },
+    
+    formatearInputMonto(event, campo, objeto = null) {
+      let valor = event.target.value;
+      
+      // Remover todo excepto números
+      valor = valor.replace(/[^\d]/g, '');
+      
+      // Si está vacío, mantener vacío
+      if (!valor) {
+        if (objeto) {
+          objeto[campo] = '';
+        } else {
+          this.nuevoPago[campo] = '';
+        }
+        return;
+      }
+      
+      // Validar límite para pagos de cuotas
+      if (objeto && campo === 'monto_cuota' && objeto.saldo_restante) {
+        const montoNumerico = parseInt(valor);
+        const saldoMaximo = parseFloat(objeto.saldo_restante);
+        
+        if (montoNumerico > saldoMaximo) {
+          // No permitir escribir un monto mayor al saldo
+          valor = Math.floor(saldoMaximo).toString();
+        }
+      }
+      
+      // Formatear con separadores de miles
+      const numeroFormateado = this.formatearMontoInput(parseInt(valor));
+      
+      // Actualizar el valor
+      if (objeto) {
+        objeto[campo] = numeroFormateado;
+      } else {
+        this.nuevoPago[campo] = numeroFormateado;
+      }
+    },
+    
+    formatearMontoInput(numero) {
+      if (!numero) return '';
+      return numero.toLocaleString('en-US');
+    },
+    
+    limpiarMonto(montoFormateado) {
+      if (!montoFormateado) return '0';
+      return montoFormateado.toString().replace(/,/g, '');
     },
     
     calcularPorcentajePago(pago) {
@@ -609,7 +647,7 @@ export default {
     },
     
     formatearMonto(monto) {
-      return parseFloat(monto || 0).toLocaleString('es-AR', {
+      return parseFloat(monto || 0).toLocaleString('es-ES', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
       });
@@ -659,6 +697,14 @@ export default {
     
     limpiarMensaje() {
       this.mensaje = null;
+    },
+    
+    // Validar si el monto de cuota es válido
+    validarMontoCuota(pago) {
+      if (!pago.monto_cuota) return false;
+      const montoLimpio = parseFloat(this.limpiarMonto(pago.monto_cuota));
+      const saldoRestante = parseFloat(pago.saldo_restante);
+      return montoLimpio > 0 && montoLimpio <= saldoRestante;
     }
   }
 }
@@ -1101,6 +1147,19 @@ export default {
   background: #ef4444;
 }
 
+.error-monto {
+  color: #ef4444;
+  font-size: 0.85rem;
+  margin-top: 5px;
+  padding: 5px 10px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .opciones-principales {
@@ -1122,5 +1181,79 @@ export default {
   .cuotas-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* === ESTILOS PARA CONTROL DE SESIÓN === */
+.session-status {
+  margin-top: 15px;
+  padding: 15px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.session-active {
+  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+  color: #155724;
+  border: 1px solid #c3e6cb;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.session-inactive {
+  background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.session-status i {
+  font-size: 18px;
+}
+
+.btn-logout, .btn-login {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.3s ease;
+}
+
+.btn-logout {
+  background: #dc3545;
+  color: white;
+}
+
+.btn-logout:hover {
+  background: #c82333;
+  transform: translateY(-1px);
+}
+
+.btn-login {
+  background: #007bff;
+  color: white;
+}
+
+.btn-login:hover:not(:disabled) {
+  background: #0056b3;
+  transform: translateY(-1px);
+}
+
+.btn-login:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
 }
 </style>
