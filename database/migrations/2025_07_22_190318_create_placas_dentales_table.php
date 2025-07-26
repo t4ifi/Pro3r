@@ -16,6 +16,7 @@ return new class extends Migration
             $table->date('fecha');
             $table->string('lugar', 255);
             $table->string('tipo', 100);
+            $table->string('archivo_url', 500)->nullable(); // URL del archivo de la placa
             $table->unsignedBigInteger('paciente_id');
             $table->timestamps();
 

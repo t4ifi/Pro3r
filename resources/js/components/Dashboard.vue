@@ -51,6 +51,19 @@
             <router-link to="#" class="sidebar-sublink">Ver Tratamientos y observaciones</router-link>
           </div>
         </div>
+        <!-- Placas (solo dentista) -->
+        <div v-if="usuarioGuardado.rol==='dentista'" class="sidebar-group">
+          <div :class="['sidebar-link sidebar-link-group', activeGroup==='placas' ? 'active-menu' : '']" @click="toggleMenu('placas')">
+            <i class='bx bx-image'></i>
+            <span class="sidebar-title">Placas</span>
+            <i :class="['bx', openMenu==='placas' ? 'bx-chevron-up' : 'bx-chevron-down', 'chevron']"></i>
+          </div>
+          <div v-if="openMenu==='placas'" class="sidebar-submenu">
+            <router-link :to="{ path: '/placas/subir' }" class="sidebar-sublink" :class="$route.path === '/placas/subir' ? 'active-sublink' : ''">Subir Placa</router-link>
+            <router-link :to="{ path: '/placas/ver' }" class="sidebar-sublink" :class="$route.path === '/placas/ver' ? 'active-sublink' : ''">Ver Placas</router-link>
+            <router-link :to="{ path: '/placas/eliminar' }" class="sidebar-sublink" :class="$route.path === '/placas/eliminar' ? 'active-sublink' : ''">Eliminar Placa</router-link>
+          </div>
+        </div>
         <!-- Pagos -->
         <div class="sidebar-group">
           <div :class="['sidebar-link sidebar-link-group', activeGroup==='pagos' ? 'active-menu' : '']" @click="toggleMenu('pagos')">
@@ -148,6 +161,11 @@ export default {
         path.includes('tratamiento')
       ) {
         return 'tratamientos';
+      } else if (
+        path.startsWith('/placas') ||
+        path.includes('placa')
+      ) {
+        return 'placas';
       } else if (
         path.startsWith('/pagos') ||
         path.includes('pago')
