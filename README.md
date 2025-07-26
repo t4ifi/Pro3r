@@ -1,13 +1,273 @@
-# DentalSYNC2
+# 🦷 DentalSYNC2 - Sistema de Gestión Dental
 
-Sistema de gestión dental desarrollado con Laravel 12, Vue 3 y MariaDB.
+## 📋 **Descripción**
+Sistema completo de gestión dental desarrollado con **Laravel 12** y **Vue.js 3** que permite administrar pacientes, citas, tratamientos y personal dental.
 
-## Tecnologías
+---
 
-- **Backend**: Laravel 12
-- **Frontend**: Vue 3 + Vite
-- **Base de datos**: MariaDB
-- **Estilos**: Tailwind CSS
+## 🚀 **Características Principales**
+
+### 👥 **Gestión de Usuarios**
+- Sistema de roles: **Dentista** y **Recepcionista**
+- Autenticación segura
+- Dashboard personalizado por rol
+
+### 📅 **Gestión de Citas**
+- Agendar citas con pacientes existentes o nuevos
+- Calendario interactivo
+- Estados: Pendiente, Confirmada, Cancelada, Atendida
+- Filtrado por fecha
+
+### 🦷 **Gestión de Pacientes**
+- Registro completo de pacientes
+- Historial de visitas
+- Información de contacto
+- Creación automática desde citas
+
+### 🔧 **Módulos Adicionales**
+- **Placas Dentales**: Gestión de placas y aparatos ortodónticos
+- **Tratamientos**: Catálogo de servicios dentales
+- **Pagos**: Sistema de facturación y cuotas
+- **Historial Clínico**: Registro médico completo
+
+---
+
+## 💻 **Tecnologías Utilizadas**
+
+### Backend
+- **Laravel 12** - Framework PHP
+- **MySQL/MariaDB** - Base de datos
+- **Eloquent ORM** - Mapeo objeto-relacional
+- **Laravel Artisan** - CLI de comandos
+
+### Frontend
+- **Vue.js 3** - Framework JavaScript reactivo
+- **Vue Router** - Enrutamiento SPA
+- **Vite** - Bundler y servidor de desarrollo
+- **Tailwind CSS** - Framework de estilos
+
+### Dependencias Adicionales
+- **BoxIcons** - Librería de iconos
+- **Vue-Cal** - Componente de calendario
+
+---
+
+## ⚙️ **Instalación y Configuración**
+
+### Prerrequisitos
+- PHP 8.4+ con extensiones: mbstring, openssl, pdo, mysql
+- Composer
+- Node.js y npm
+- MySQL/MariaDB
+
+### 1. Clonar el Repositorio
+```bash
+git clone https://github.com/t4ifi/Pro3r.git
+cd Pro3r
+```
+
+### 2. Instalar Dependencias Backend
+```bash
+composer install
+```
+
+### 3. Configurar Base de Datos
+```bash
+# Copiar archivo de configuración
+cp .env.example .env
+
+# Editar .env con credenciales de BD
+DB_DATABASE=dentalsync2
+DB_USERNAME=tu_usuario
+DB_PASSWORD=tu_contraseña
+```
+
+### 4. Ejecutar Migraciones
+```bash
+php artisan key:generate
+php artisan migrate
+```
+
+### 5. Instalar Dependencias Frontend
+```bash
+npm install
+```
+
+### 6. Ejecutar Servidores
+```bash
+# Terminal 1: Servidor Laravel
+php artisan serve
+
+# Terminal 2: Servidor Vite
+npm run dev
+```
+
+### 7. Acceder al Sistema
+- **URL**: http://127.0.0.1:8000
+- **Usuario Demo**: Ver datos en migraciones
+
+---
+
+## 📁 **Estructura del Proyecto**
+
+```
+├── app/
+│   ├── Http/Controllers/          # Controladores API
+│   │   ├── CitaController.php     # Gestión de citas
+│   │   ├── PacienteController.php # Gestión de pacientes
+│   │   └── PlacaController.php    # Gestión de placas
+│   └── Models/                    # Modelos Eloquent
+│       ├── Cita.php
+│       ├── Paciente.php
+│       └── Usuario.php
+├── database/
+│   └── migrations/                # Migraciones de BD
+├── resources/
+│   ├── js/
+│   │   ├── components/            # Componentes Vue
+│   │   │   └── dashboard/         # Módulos del dashboard
+│   │   ├── router.js              # Configuración de rutas
+│   │   └── app.js                 # Aplicación principal
+│   └── views/
+│       └── app.blade.php          # Template principal
+├── routes/
+│   ├── api.php                    # Rutas API
+│   └── web.php                    # Rutas web
+└── public/                        # Archivos públicos
+```
+
+---
+
+## 🔧 **API Endpoints**
+
+### Autenticación
+```http
+POST /api/login                    # Iniciar sesión
+```
+
+### Citas
+```http
+GET    /api/citas                  # Listar citas
+POST   /api/citas                  # Crear cita
+PUT    /api/citas/{id}             # Actualizar cita
+DELETE /api/citas/{id}             # Eliminar cita
+```
+
+### Pacientes
+```http
+GET    /api/pacientes              # Listar pacientes
+GET    /api/pacientes/{id}         # Obtener paciente
+POST   /api/pacientes              # Crear paciente
+PUT    /api/pacientes/{id}         # Actualizar paciente
+```
+
+### Placas Dentales
+```http
+GET    /api/placas                 # Listar placas
+POST   /api/placas                 # Crear placa
+PUT    /api/placas/{id}            # Actualizar placa
+DELETE /api/placas/{id}            # Eliminar placa
+```
+
+---
+
+## 🧪 **Comandos Útiles**
+
+### Laravel
+```bash
+# Limpiar caches
+php artisan config:clear
+php artisan cache:clear
+php artisan route:clear
+
+# Verificar migraciones
+php artisan migrate:status
+
+# Acceder a consola interactiva
+php artisan tinker
+
+# Ver logs en tiempo real
+tail -f storage/logs/laravel.log
+```
+
+### Base de Datos
+```bash
+# Crear nueva migración
+php artisan make:migration create_table_name
+
+# Ejecutar migraciones
+php artisan migrate
+
+# Rollback migraciones
+php artisan migrate:rollback
+```
+
+### Frontend
+```bash
+# Desarrollo
+npm run dev
+
+# Producción
+npm run build
+
+# Linter
+npm run lint
+```
+
+---
+
+## 🐛 **Resolución de Problemas**
+
+### Error 500 en API
+1. Verificar logs: `storage/logs/laravel.log`
+2. Limpiar caches: `php artisan config:clear`
+3. Verificar extensiones PHP: `php -m`
+4. Comprobar conexión BD: `php artisan tinker`
+
+### Frontend no carga
+1. Verificar compilación: `npm run dev`
+2. Revisar consola del navegador
+3. Comprobar rutas en `router.js`
+
+### Base de datos
+1. Verificar credenciales en `.env`
+2. Comprobar migraciones: `php artisan migrate:status`
+3. Revisar relaciones en modelos
+
+---
+
+## 📝 **Contribución**
+
+1. Fork del repositorio
+2. Crear rama feature: `git checkout -b feature/nueva-funcionalidad`
+3. Commit cambios: `git commit -m 'Add nueva funcionalidad'`
+4. Push a la rama: `git push origin feature/nueva-funcionalidad`
+5. Crear Pull Request
+
+---
+
+## 📄 **Licencia**
+
+Este proyecto está bajo la Licencia MIT. Ver `LICENSE` para más detalles.
+
+---
+
+## 👥 **Autores**
+
+- **Desarrollo Principal**: [@t4ifi](https://github.com/t4ifi)
+- **Depuración y Documentación**: GitHub Copilot
+
+---
+
+## 📞 **Soporte**
+
+Para reportar bugs o solicitar funcionalidades:
+- **Issues**: [GitHub Issues](https://github.com/t4ifi/Pro3r/issues)
+- **Documentación**: Ver `DEBUGGING_LOG.md` para detalles técnicos
+
+---
+
+**🦷 ¡Gracias por usar DentalSYNC2!**
 - **Herramientas de desarrollo**: Laravel Sail, Artisan, NPM
 
 ## Requisitos del sistema

@@ -5,6 +5,7 @@ import CitasCalendario from './components/dashboard/CitasCalendario.vue';
 import CitasAgendar from './components/dashboard/CitasAgendar.vue';
 import PacienteVer from './components/dashboard/PacienteVer.vue';
 import PacienteCrear from './components/dashboard/PacienteCrear.vue';
+import PacienteEditar from './components/dashboard/PacienteEditar.vue';
 import PlacaSubir from './components/dashboard/PlacaSubir.vue';
 import PlacaVer from './components/dashboard/PlacaVer.vue';
 import PlacaEliminar from './components/dashboard/PlacaEliminar.vue';
@@ -43,6 +44,18 @@ const routes = [
         path: 'crear-paciente',
         name: 'PacienteCrear',
         component: PacienteCrear,
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'editar-pacientes',
+        name: 'PacienteEditarLista',
+        component: PacienteVer, // Temporalmente usa PacienteVer
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'editar-paciente',
+        name: 'PacienteEditarIndividual',
+        component: PacienteEditar,
         meta: { requiresAuth: true }
       },
       {

@@ -12,14 +12,15 @@ class CitaController extends Controller
     {
         // Permitir filtrar por fecha (YYYY-MM-DD)
         $fecha = $request->query('fecha');
-        \Log::info('Fecha recibida en API:', ['fecha' => $fecha]);
+        
         $query = Cita::with(['paciente', 'usuario']);
+        
         if ($fecha) {
-            \Log::info('Aplicando filtro whereDate', ['whereDate' => $fecha]);
             $query->whereDate('fecha', $fecha);
         }
+        
         $citas = $query->orderBy('fecha')->get();
-        \Log::info('Citas encontradas:', ['count' => $citas->count(), 'citas' => $citas->pluck('fecha')]);
+        
         // Mapear para devolver nombre_completo y nombre de usuario directamente
         $citas = $citas->map(function($cita) {
             return [
@@ -34,6 +35,7 @@ class CitaController extends Controller
                 'usuario_nombre' => $cita->usuario ? $cita->usuario->nombre : null,
             ];
         });
+        
         return response()->json($citas);
     }
 
@@ -51,28 +53,50 @@ class CitaController extends Controller
         return response()->json(['success' => true, 'cita' => $cita]);
     }
 
+    public function store(Request $request)
+    {
+        try {
+            // Validar los datos
+            $validated = $request->validate([
+                'fecha' => 'required|date',
+                'motivo' => 'required|string',
+                'nombre_completo' => 'required|string',
+                'estado' => 'string|in:pendiente,confirmada,cancelada,atendida',
+            ]);
+
+            // Buscar o crear paciente por nombre
+            $paciente = \App\Models\Paciente::where('nombre_completo', $validated['nombre_completo'])->first();
+            
+            if (!$paciente) {
+                // Si no existe el paciente, crear uno básico con solo los campos que existen
+                $paciente = \App\Models\Paciente::create([
+                    'nombre_completo' => $validated['nombre_completo'],
+                    'telefono' => null,
+                    'fecha_nacimiento' => null,
+                    'ultima_visita' => now()->toDateString(),
+                ]);
+            }
+
+            // Crear la cita
+            $cita = Cita::create([
+                'fecha' => $validated['fecha'],
+                'motivo' => $validated['motivo'],
+                'estado' => $validated['estado'] ?? 'pendiente',
+                'paciente_id' => $paciente->id,
+                'usuario_id' => 3, // Dr. Juan Pérez (dentista)
+            ]);
+
+            return response()->json(['success' => true, 'cita' => $cita->fresh(['paciente', 'usuario'])]);
+        } catch (\Exception $e) {
+            \Log::error('Error al crear cita:', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            return response()->json(['error' => 'Error interno del servidor: ' . $e->getMessage()], 500);
+        }
+    }
+
     public function destroy($id)
     {
         $cita = Cita::findOrFail($id);
         $cita->delete();
         return response()->json(['success' => true]);
     }
-
-    // public function store(Request $request)
-    // {
-    //     $validated = $request->validate([
-    //         'fecha' => 'required|date',
-    //         'motivo' => 'required|string',
-    //         'paciente_id' => 'required|exists:pacientes,id',
-    //         'usuario_id' => 'required|exists:usuarios,id',
-    //     ]);
-    //     $cita = Cita::create([
-    //         'fecha' => $validated['fecha'],
-    //         'motivo' => $validated['motivo'],
-    //         'estado' => 'pendiente',
-    //         'paciente_id' => $validated['paciente_id'],
-    //         'usuario_id' => $validated['usuario_id'],
-    //     ]);
-    //     return response()->json(['success' => true, 'cita' => $cita->fresh(['paciente', 'usuario'])]);
-    // }
 }
