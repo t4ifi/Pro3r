@@ -5,8 +5,8 @@
         <div class="avatar-circle">
           <i class='bx bx-user'></i>
         </div>
-        <div class="user-name">{{ usuarioGuardado.nombre }}</div>
-        <div class="user-role">{{ usuarioGuardado.rol }}</div>
+        <div class="user-name">Bienvenido, {{ usuarioGuardado.nombre }}</div>
+        <div class="user-role">{{ usuarioGuardado.rol.charAt(0).toUpperCase() + usuarioGuardado.rol.slice(1) }}</div>
       </div>
       <nav>
         <!-- Citas -->
@@ -21,8 +21,14 @@
             <i v-if="usuarioGuardado.rol!=='dentista'" :class="['bx', openMenu==='citas' ? 'bx-chevron-up' : 'bx-chevron-down', 'chevron']"></i>
           </div>
           <div v-if="openMenu==='citas' && usuarioGuardado.rol!=='dentista'" class="sidebar-submenu">
-            <router-link :to="{ path: '/citas/calendario' }" class="sidebar-sublink" :class="$route.path === '/citas/calendario' ? 'active-sublink' : ''">Ver Calendario y citas</router-link>
-            <router-link :to="{ path: '/citas/agendar' }" class="sidebar-sublink" :class="$route.path === '/citas/agendar' ? 'active-sublink' : ''">Agendar Nueva Cita</router-link>
+            <router-link :to="{ path: '/citas/calendario' }" class="sidebar-sublink" :class="$route.path === '/citas/calendario' ? 'active-sublink' : ''">
+              <i class='bx bx-calendar-check'></i>
+              <span>Ver Calendario y citas</span>
+            </router-link>
+            <router-link :to="{ path: '/citas/agendar' }" class="sidebar-sublink" :class="$route.path === '/citas/agendar' ? 'active-sublink' : ''">
+              <i class='bx bx-calendar-plus'></i>
+              <span>Agendar Nueva Cita</span>
+            </router-link>
           </div>
         </div>
         <!-- Pacientes -->
@@ -33,10 +39,22 @@
             <i :class="['bx', openMenu==='pacientes' ? 'bx-chevron-up' : 'bx-chevron-down', 'chevron']"></i>
           </div>
           <div v-if="openMenu==='pacientes'" class="sidebar-submenu">
-            <router-link :to="{ path: '/citas/ver-pacientes' }" class="sidebar-sublink" :class="$route.path === '/citas/ver-pacientes' ? 'active-sublink' : ''">Ver Pacientes</router-link>
-            <router-link v-if="usuarioGuardado.rol==='dentista'" :to="{ path: '/citas/editar-pacientes' }" class="sidebar-sublink" :class="$route.path === '/citas/editar-pacientes' ? 'active-sublink' : ''">Editar Pacientes</router-link>
-            <router-link v-if="usuarioGuardado.rol==='recepcionista'" :to="{ path: '/citas/crear-paciente' }" class="sidebar-sublink" :class="$route.path === '/citas/crear-paciente' ? 'active-sublink' : ''">Registrar Paciente</router-link>
-            <router-link v-if="usuarioGuardado.rol==='recepcionista'" :to="{ path: '/citas/editar-paciente' }" class="sidebar-sublink" :class="$route.path === '/citas/editar-paciente' ? 'active-sublink' : ''">Editar Paciente</router-link>
+            <router-link :to="{ path: '/citas/ver-pacientes' }" class="sidebar-sublink" :class="$route.path === '/citas/ver-pacientes' ? 'active-sublink' : ''">
+              <i class='bx bx-group'></i>
+              <span>Ver Pacientes</span>
+            </router-link>
+            <router-link v-if="usuarioGuardado.rol==='dentista'" :to="{ path: '/citas/editar-pacientes' }" class="sidebar-sublink" :class="$route.path === '/citas/editar-pacientes' ? 'active-sublink' : ''">
+              <i class='bx bx-edit-alt'></i>
+              <span>Editar Pacientes</span>
+            </router-link>
+            <router-link v-if="usuarioGuardado.rol==='recepcionista'" :to="{ path: '/citas/crear-paciente' }" class="sidebar-sublink" :class="$route.path === '/citas/crear-paciente' ? 'active-sublink' : ''">
+              <i class='bx bx-user-plus'></i>
+              <span>Registrar Paciente</span>
+            </router-link>
+            <router-link v-if="usuarioGuardado.rol==='recepcionista'" :to="{ path: '/citas/editar-paciente' }" class="sidebar-sublink" :class="$route.path === '/citas/editar-paciente' ? 'active-sublink' : ''">
+              <i class='bx bx-user-check'></i>
+              <span>Editar Paciente</span>
+            </router-link>
           </div>
         </div>
         <!-- Tratamientos (solo dentista) -->
@@ -47,8 +65,14 @@
             <i :class="['bx', openMenu==='tratamientos' ? 'bx-chevron-up' : 'bx-chevron-down', 'chevron']"></i>
           </div>
           <div v-if="openMenu==='tratamientos'" class="sidebar-submenu">
-            <router-link to="#" class="sidebar-sublink">Registrar Tratamiento y observaciones</router-link>
-            <router-link to="#" class="sidebar-sublink">Ver Tratamientos y observaciones</router-link>
+            <router-link :to="{ path: '/tratamientos/registrar' }" class="sidebar-sublink" :class="$route.path === '/tratamientos/registrar' ? 'active-sublink' : ''">
+              <i class='bx bx-plus-medical'></i>
+              <span>Registrar Tratamiento y observaciones</span>
+            </router-link>
+            <router-link :to="{ path: '/tratamientos/ver' }" class="sidebar-sublink" :class="$route.path === '/tratamientos/ver' ? 'active-sublink' : ''">
+              <i class='bx bx-list-ul'></i>
+              <span>Ver Tratamientos y observaciones</span>
+            </router-link>
           </div>
         </div>
         <!-- Placas (solo dentista) -->
@@ -59,9 +83,18 @@
             <i :class="['bx', openMenu==='placas' ? 'bx-chevron-up' : 'bx-chevron-down', 'chevron']"></i>
           </div>
           <div v-if="openMenu==='placas'" class="sidebar-submenu">
-            <router-link :to="{ path: '/placas/subir' }" class="sidebar-sublink" :class="$route.path === '/placas/subir' ? 'active-sublink' : ''">Subir Placa</router-link>
-            <router-link :to="{ path: '/placas/ver' }" class="sidebar-sublink" :class="$route.path === '/placas/ver' ? 'active-sublink' : ''">Ver Placas</router-link>
-            <router-link :to="{ path: '/placas/eliminar' }" class="sidebar-sublink" :class="$route.path === '/placas/eliminar' ? 'active-sublink' : ''">Eliminar Placa</router-link>
+            <router-link :to="{ path: '/placas/subir' }" class="sidebar-sublink" :class="$route.path === '/placas/subir' ? 'active-sublink' : ''">
+              <i class='bx bx-cloud-upload'></i>
+              <span>Subir Placa</span>
+            </router-link>
+            <router-link :to="{ path: '/placas/ver' }" class="sidebar-sublink" :class="$route.path === '/placas/ver' ? 'active-sublink' : ''">
+              <i class='bx bx-show'></i>
+              <span>Ver Placas</span>
+            </router-link>
+            <router-link :to="{ path: '/placas/eliminar' }" class="sidebar-sublink" :class="$route.path === '/placas/eliminar' ? 'active-sublink' : ''">
+              <i class='bx bx-trash-alt'></i>
+              <span>Eliminar Placa</span>
+            </router-link>
           </div>
         </div>
         <!-- Pagos -->
@@ -72,9 +105,18 @@
             <i :class="['bx', openMenu==='pagos' ? 'bx-chevron-up' : 'bx-chevron-down', 'chevron']"></i>
           </div>
           <div v-if="openMenu==='pagos'" class="sidebar-submenu">
-            <router-link to="#" class="sidebar-sublink">Registrar pago</router-link>
-            <router-link to="#" class="sidebar-sublink">Ver Pagos</router-link>
-            <router-link to="#" class="sidebar-sublink">Registrar Pago De Cuota</router-link>
+            <router-link :to="{ path: '/pagos/registrar' }" class="sidebar-sublink" :class="$route.path === '/pagos/registrar' ? 'active-sublink' : ''">
+              <i class='bx bx-money'></i>
+              <span>Registrar pago</span>
+            </router-link>
+            <router-link :to="{ path: '/pagos/ver' }" class="sidebar-sublink" :class="$route.path === '/pagos/ver' ? 'active-sublink' : ''">
+              <i class='bx bx-receipt'></i>
+              <span>Ver Pagos</span>
+            </router-link>
+            <router-link :to="{ path: '/pagos/cuotas' }" class="sidebar-sublink" :class="$route.path === '/pagos/cuotas' ? 'active-sublink' : ''">
+              <i class='bx bx-credit-card'></i>
+              <span>Registrar Pago De Cuota</span>
+            </router-link>
           </div>
         </div>
         <!-- Usuarios (solo dentista) -->
@@ -85,15 +127,25 @@
             <i :class="['bx', openMenu==='usuarios' ? 'bx-chevron-up' : 'bx-chevron-down', 'chevron']"></i>
           </div>
           <div v-if="openMenu==='usuarios'" class="sidebar-submenu">
-            <router-link to="#" class="sidebar-sublink">Ver Usuarios</router-link>
-            <router-link to="#" class="sidebar-sublink">Editar Usuarios</router-link>
-            <router-link to="#" class="sidebar-sublink">Crear Usuarios</router-link>
+            <router-link :to="{ path: '/usuarios/ver' }" class="sidebar-sublink" :class="$route.path === '/usuarios/ver' ? 'active-sublink' : ''">
+              <i class='bx bx-group'></i>
+              <span>Ver Usuarios</span>
+            </router-link>
+            <router-link :to="{ path: '/usuarios/editar' }" class="sidebar-sublink" :class="$route.path === '/usuarios/editar' ? 'active-sublink' : ''">
+              <i class='bx bx-edit'></i>
+              <span>Editar Usuarios</span>
+            </router-link>
+            <router-link :to="{ path: '/usuarios/crear' }" class="sidebar-sublink" :class="$route.path === '/usuarios/crear' ? 'active-sublink' : ''">
+              <i class='bx bx-user-plus'></i>
+              <span>Crear Usuarios</span>
+            </router-link>
           </div>
         </div>
         <!-- Mensajes (solo recepcionista) -->
         <div v-if="usuarioGuardado.rol==='recepcionista'" class="sidebar-group">
           <router-link to="#" class="sidebar-link">
-            <i class='bx bx-message'></i> <span>Mensajes</span>
+            <i class='bx bx-message'></i> 
+            <span>Mensajes</span>
           </router-link>
         </div>
       </nav>
@@ -211,42 +263,63 @@ export default {
       window.location.href = '/citas';
     },
     syncMenuWithRoute() {
-      // Obtiene el grupo de menú según la ruta actual
+      // Obtiene el grupo de menú según la ruta actual y mantiene abierto el menú correspondiente
       const path = this.$route.path;
-      if (path.startsWith('/citas')) {
+      
+      // Para Citas
+      if (path.startsWith('/citas/calendario') || path.startsWith('/citas/agendar')) {
         if (path === '/citas/calendario' && this.usuarioGuardado.rol === 'dentista') {
-          this.openMenu = null;
+          this.openMenu = null; // Dentista ve calendario directamente
         } else {
           this.openMenu = 'citas';
         }
-      } else if (
+      } 
+      // Para Pacientes (rutas que empiezan con /citas/ pero son de pacientes)
+      else if (
         path.startsWith('/citas/ver-pacientes') ||
         path.startsWith('/citas/editar-pacientes') ||
         path.startsWith('/citas/crear-paciente') ||
         path.startsWith('/citas/editar-paciente')
       ) {
         this.openMenu = 'pacientes';
-      } else if (
+      } 
+      // Para Tratamientos
+      else if (
         path.startsWith('/tratamientos') ||
         path.includes('tratamiento')
       ) {
         this.openMenu = 'tratamientos';
-      } else if (
+      } 
+      // Para Placas
+      else if (
+        path.startsWith('/placas') ||
+        path.includes('placa')
+      ) {
+        this.openMenu = 'placas';
+      } 
+      // Para Pagos
+      else if (
         path.startsWith('/pagos') ||
         path.includes('pago')
       ) {
         this.openMenu = 'pagos';
-      } else if (
+      } 
+      // Para Usuarios
+      else if (
         path.startsWith('/usuarios') ||
         path.includes('usuario')
       ) {
         this.openMenu = 'usuarios';
-      } else if (
+      } 
+      // Para Mensajes
+      else if (
         path.startsWith('/mensajes') ||
         path.includes('mensaje')
       ) {
         this.openMenu = 'mensajes';
-      } else {
+      } 
+      // Si no coincide con ningún módulo, cierra todos los menús
+      else {
         this.openMenu = null;
       }
     },
@@ -331,7 +404,9 @@ export default {
   border-radius: 8px;
   margin-bottom: 6px;
   transition: background 0.2s, color 0.2s;
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   color: #3a3a3a;
   text-decoration: none;
   background: #fff;
@@ -339,6 +414,13 @@ export default {
 .sidebar-sublink.active-sublink, .sidebar-sublink:hover {
   background: #ece7fa;
   color: #a259ff;
+}
+.sidebar-sublink i {
+  color: #a259ff;
+  font-size: 1.1rem;
+  width: 20px;
+  display: flex;
+  justify-content: center;
 }
 .sidebar-link-group i, .sidebar-link i {
   color: #a259ff;

@@ -92,6 +92,78 @@ const routes = [
     ]
   },
   {
+    path: '/tratamientos',
+    name: 'Tratamientos',
+    component: Dashboard,
+    meta: { requiresAuth: true },
+    children: [
+      {
+        path: 'registrar',
+        name: 'TratamientoRegistrar',
+        component: () => import('./components/dashboard/TratamientoRegistrar.vue'),
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'ver',
+        name: 'TratamientoVer',
+        component: () => import('./components/dashboard/TratamientoVer.vue'),
+        meta: { requiresAuth: true }
+      }
+    ]
+  },
+  {
+    path: '/pagos',
+    name: 'Pagos',
+    component: Dashboard,
+    meta: { requiresAuth: true },
+    children: [
+      {
+        path: 'registrar',
+        name: 'PagoRegistrar',
+        component: () => import('./components/dashboard/PagoRegistrar.vue'),
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'ver',
+        name: 'PagoVer',
+        component: () => import('./components/dashboard/PagoVer.vue'),
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'cuotas',
+        name: 'PagoCuotas',
+        component: () => import('./components/dashboard/PagoCuotas.vue'),
+        meta: { requiresAuth: true }
+      }
+    ]
+  },
+  {
+    path: '/usuarios',
+    name: 'Usuarios',
+    component: Dashboard,
+    meta: { requiresAuth: true },
+    children: [
+      {
+        path: 'ver',
+        name: 'UsuarioVer',
+        component: () => import('./components/dashboard/UsuarioVer.vue'),
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'editar',
+        name: 'UsuarioEditar',
+        component: () => import('./components/dashboard/UsuarioEditar.vue'),
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'crear',
+        name: 'UsuarioCrear',
+        component: () => import('./components/dashboard/UsuarioCrear.vue'),
+        meta: { requiresAuth: true }
+      }
+    ]
+  },
+  {
     path: '/panel-dentista',
     name: 'PanelDentista',
     component: Dashboard,
