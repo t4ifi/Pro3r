@@ -12,29 +12,95 @@ class PacienteController extends Controller
         return response()->json(Paciente::all());
     }
 
+    /**
+     * Mostrar información específica de un paciente
+     */
     public function show($id)
     {
-        $paciente = Paciente::findOrFail($id);
-        return response()->json($paciente);
+        try {
+            \Log::info("Buscando paciente con ID: {$id}");
+            
+            $paciente = Paciente::findOrFail($id);
+            \Log::info("Paciente encontrado: {$paciente->nombre_completo}");
+            
+            return response()->json($paciente);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            \Log::error("Paciente no encontrado con ID: {$id}");
+            return response()->json(['error' => 'Paciente no encontrado'], 404);
+        } catch (\Exception $e) {
+            \Log::error("Error al buscar paciente: {$e->getMessage()}");
+            return response()->json(['error' => 'Error interno del servidor'], 500);
+        }
     }
 
+    /**
+     * Actualizar información de un paciente
+     */
     public function update(Request $request, $id)
     {
-        $paciente = Paciente::findOrFail($id);
-        $paciente->nombre_completo = $request->input('nombre_completo');
-        $paciente->telefono = $request->input('telefono');
-        $paciente->fecha_nacimiento = $request->input('fecha_nacimiento');
-        $paciente->save();
-        return response()->json(['message' => 'Paciente actualizado', 'paciente' => $paciente]);
+        try {
+            // Validar datos de entrada
+            $validated = $request->validate([
+                'nombre_completo' => 'required|string|max:255',
+                'telefono' => 'nullable|string|max:20',
+                'fecha_nacimiento' => 'nullable|date|before:today',
+                'ultima_visita' => 'nullable|date',
+            ]);
+
+            $paciente = Paciente::findOrFail($id);
+            
+            // Actualizar campos
+            $paciente->update($validated);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Paciente actualizado exitosamente',
+                'paciente' => $paciente->fresh()
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'error' => 'Error de validación',
+                'details' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Error al actualizar paciente: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
+    /**
+     * Crear un nuevo paciente
+     */
     public function store(Request $request)
     {
-        $paciente = new Paciente();
-        $paciente->nombre_completo = $request->input('nombre_completo');
-        $paciente->telefono = $request->input('telefono');
-        $paciente->fecha_nacimiento = $request->input('fecha_nacimiento');
-        $paciente->save();
-        return response()->json(['message' => 'Paciente creado', 'paciente' => $paciente], 201);
+        try {
+            // Validar datos de entrada
+            $validated = $request->validate([
+                'nombre_completo' => 'required|string|max:255',
+                'telefono' => 'nullable|string|max:20',
+                'fecha_nacimiento' => 'nullable|date|before:today',
+            ]);
+
+            // Agregar fecha de última visita automáticamente
+            $validated['ultima_visita'] = now()->toDateString();
+
+            $paciente = Paciente::create($validated);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Paciente creado exitosamente',
+                'paciente' => $paciente
+            ], 201);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'error' => 'Error de validación',
+                'details' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Error al crear paciente: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

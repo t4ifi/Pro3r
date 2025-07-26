@@ -49,7 +49,7 @@ const routes = [
       {
         path: 'editar-pacientes',
         name: 'PacienteEditarLista',
-        component: PacienteVer, // Temporalmente usa PacienteVer
+        component: PacienteEditar,
         meta: { requiresAuth: true }
       },
       {

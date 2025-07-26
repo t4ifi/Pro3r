@@ -1,7 +1,364 @@
 # 🦷 DentalSYNC2 - Sistema de Gestión Dental
 
 ## 📋 **Descripción**
-Sistema completo de gestión dental desarrollado con **Laravel 12** y **Vue.js 3** que permite administrar pacientes, citas, tratamientos y personal dental.
+# 🦷 DentalSYNC2 - Sistema de Gestión Dental
+
+## 📋 Descripción
+
+DentalSYNC2 es un sistema integral de gestión para consultorios dentales, desarrollado con **Laravel 12** y **Vue.js 3**. Permite a los dentistas gestionar pacientes, citas, tratamientos y más, con una interfaz moderna y funcionalidades avanzadas.
+
+## ✨ Características Principales
+
+### 🏥 Gestión de Pacientes
+- ✅ **Listado completo** de pacientes con información detallada
+- ✅ **Edición avanzada** con validaciones robustas y UX moderna
+- ✅ **Cálculo automático** de edad y datos derivados
+- ✅ **Búsqueda y filtrado** dinámico
+- ✅ **Validaciones** frontend y backend
+
+### 📅 Sistema de Citas
+- ✅ **Calendario interactivo** para gestión de citas
+- ✅ **Estados de citas** (confirmada, pendiente, completada, cancelada)
+- ✅ **Filtrado por estado** y búsqueda avanzada
+- ✅ **Gestión completa** CRUD de citas
+
+### 🔐 Autenticación y Roles
+- ✅ **Sistema de login** seguro
+- ✅ **Roles diferenciados** (dentista, asistente, administrador)
+- ✅ **Protección de rutas** basada en roles
+
+### 🎨 Interfaz Moderna
+- ✅ **Diseño responsivo** con Tailwind CSS
+- ✅ **Iconografía** con BoxIcons
+- ✅ **Estados de carga** y feedback visual
+- ✅ **Animaciones** y transiciones suaves
+
+## 🛠️ Tecnologías
+
+### Backend
+- **Laravel 12** - Framework PHP moderno
+- **MySQL/MariaDB** - Base de datos relacional
+- **API RESTful** - Arquitectura de servicios
+
+### Frontend
+- **Vue.js 3** - Framework JavaScript reactivo
+- **Composition API** - Patrón moderno de Vue
+- **Vue Router** - Enrutamiento del lado del cliente
+- **Tailwind CSS** - Framework de utilidades CSS
+- **BoxIcons** - Librería de iconos
+
+### Herramientas de Desarrollo
+- **Vite** - Build tool y servidor de desarrollo
+- **Laravel Artisan** - CLI de Laravel
+- **NPM** - Gestor de paquetes
+
+## 🚀 Instalación
+
+### Prerrequisitos
+- PHP 8.1 o superior
+- Composer
+- Node.js 18 o superior
+- NPM o Yarn
+- MySQL/MariaDB
+
+### Pasos de Instalación
+
+1. **Clonar el repositorio**
+```bash
+git clone [url-del-repositorio]
+cd Pro3r
+```
+
+2. **Instalar dependencias de PHP**
+```bash
+composer install
+```
+
+3. **Instalar dependencias de JavaScript**
+```bash
+npm install
+```
+
+4. **Configuración del entorno**
+```bash
+cp .env.example .env
+```
+
+Editar `.env` con la configuración de tu base de datos:
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=dentalsync2
+DB_USERNAME=tu_usuario
+DB_PASSWORD=tu_contraseña
+```
+
+5. **Generar clave de aplicación**
+```bash
+php artisan key:generate
+```
+
+6. **Ejecutar migraciones**
+```bash
+php artisan migrate
+```
+
+7. **Crear datos de prueba**
+```bash
+php artisan patients:create-test
+```
+
+8. **Compilar assets**
+```bash
+npm run dev
+```
+
+9. **Iniciar servidores**
+
+Terminal 1 (Laravel):
+```bash
+php artisan serve
+```
+
+Terminal 2 (Vite):
+```bash
+npm run dev
+```
+
+La aplicación estará disponible en `http://127.0.0.1:8000`
+
+## 📁 Estructura del Proyecto
+
+```
+Pro3r/
+├── app/
+│   ├── Http/Controllers/        # Controladores de la API
+│   ├── Models/                  # Modelos Eloquent
+│   └── Console/Commands/        # Comandos Artisan personalizados
+├── database/
+│   ├── migrations/              # Migraciones de base de datos
+│   └── seeders/                 # Seeders para datos de prueba
+├── resources/
+│   ├── js/
+│   │   ├── components/          # Componentes Vue.js
+│   │   │   └── dashboard/       # Componentes del dashboard
+│   │   ├── router.js           # Configuración de rutas
+│   │   └── app.js              # Punto de entrada JavaScript
+│   ├── css/                    # Estilos CSS
+│   └── views/                  # Plantillas Blade
+├── routes/
+│   ├── api.php                 # Rutas de API
+│   └── web.php                 # Rutas web
+└── public/                     # Assets públicos
+```
+
+## 🎯 Funcionalidades Detalladas
+
+### 📝 Edición de Pacientes
+
+La funcionalidad de edición de pacientes incluye:
+
+- **Selector dinámico**: Lista actualizada de pacientes desde la base de datos
+- **Formulario reactivo**: Campos editables con validación en tiempo real
+- **Información calculada**: Edad automática, fechas de registro y modificación
+- **Validaciones robustas**: Frontend y backend sincronizadas
+- **Estados visuales**: Carga, éxito, error con feedback claro
+- **Modal de confirmación**: Confirmación visual de operaciones exitosas
+
+#### Campos Editables:
+- ✅ Nombre completo (requerido)
+- ✅ Teléfono (opcional)
+- ✅ Fecha de nacimiento (opcional)
+- ✅ Última visita (opcional)
+
+### 📅 Gestión de Citas
+
+- **Dashboard de citas**: Vista general con estadísticas
+- **Estados múltiples**: Confirmada, pendiente, completada, cancelada
+- **Filtrado avanzado**: Por estado, fecha, paciente
+- **Operaciones CRUD**: Crear, leer, actualizar, eliminar citas
+
+## 🗄️ Base de Datos
+
+### Tablas Principales
+
+#### `pacientes`
+- `id` - Identificador único
+- `nombre_completo` - Nombre del paciente
+- `telefono` - Número de contacto
+- `fecha_nacimiento` - Fecha de nacimiento
+- `ultima_visita` - Fecha de última consulta
+- `created_at`, `updated_at` - Timestamps
+
+#### `citas`
+- `id` - Identificador único
+- `paciente_id` - Referencia al paciente
+- `fecha_hora` - Fecha y hora de la cita
+- `estado` - Estado de la cita
+- `motivo` - Motivo de la consulta
+- `created_at`, `updated_at` - Timestamps
+
+## 🔧 Comandos Artisan Personalizados
+
+### Crear Pacientes de Prueba
+```bash
+php artisan patients:create-test
+```
+Crea 5 pacientes de prueba con información realista para desarrollo y testing.
+
+## 📡 API Endpoints
+
+### Pacientes
+```http
+GET    /api/pacientes           # Listar todos los pacientes
+GET    /api/pacientes/{id}      # Obtener paciente específico
+POST   /api/pacientes           # Crear nuevo paciente
+PUT    /api/pacientes/{id}      # Actualizar paciente
+DELETE /api/pacientes/{id}      # Eliminar paciente
+```
+
+### Citas
+```http
+GET    /api/citas               # Listar todas las citas
+POST   /api/citas               # Crear nueva cita
+PUT    /api/citas/{id}          # Actualizar cita
+DELETE /api/citas/{id}          # Eliminar cita
+```
+
+### Autenticación
+```http
+POST   /api/login               # Iniciar sesión
+```
+
+## 🎨 Tema y Diseño
+
+### Paleta de Colores
+- **Principal**: `#a259ff` (Morado vibrante)
+- **Secundario**: `#7c3aed` (Morado oscuro)
+- **Éxito**: `#22c55e` (Verde)
+- **Error**: `#ef4444` (Rojo)
+- **Información**: `#3b82f6` (Azul)
+
+### Principios de Diseño
+- **Responsivo**: Funciona en dispositivos móviles, tablets y desktop
+- **Moderno**: Bordes redondeados, sombras suaves, gradientes
+- **Accesible**: Contrastes adecuados, navegación por teclado
+- **Intuitivo**: Iconografía clara, feedback visual inmediato
+
+## 🧪 Testing
+
+### Datos de Prueba
+- 9 pacientes con información realista
+- Diferentes rangos de edad y fechas
+- Números de teléfono y fechas de visita variados
+
+### Casos de Prueba Manual
+- [ ] Autenticación de usuarios
+- [ ] Carga y navegación del dashboard
+- [ ] CRUD completo de pacientes
+- [ ] CRUD completo de citas
+- [ ] Filtrado y búsqueda
+- [ ] Responsividad en diferentes dispositivos
+
+## 🐛 Solución de Problemas Comunes
+
+### Error 404 en API
+- Verificar que el servidor Laravel esté ejecutándose
+- Verificar rutas con `php artisan route:list`
+- Confirmar que existen datos en la base de datos
+
+### Compilación de Assets
+```bash
+# Limpiar cache de Vite
+npm run build
+rm -rf node_modules/.vite
+
+# Reinstalar dependencias
+npm install
+npm run dev
+```
+
+### Problemas de Base de Datos
+```bash
+# Refrescar migraciones
+php artisan migrate:fresh
+
+# Crear datos de prueba
+php artisan patients:create-test
+```
+
+## 📈 Roadmap
+
+### Próximas Funcionalidades
+- [ ] Sistema de tratamientos y procedimientos
+- [ ] Gestión de pagos y facturación
+- [ ] Historial clínico completo
+- [ ] Sistema de recordatorios automáticos
+- [ ] Reportes y estadísticas avanzadas
+- [ ] Integración con sistemas de imagen dental
+- [ ] Aplicación móvil nativa
+
+### Mejoras Técnicas
+- [ ] Tests automatizados (PHPUnit, Jest)
+- [ ] Cache de datos con Redis
+- [ ] API rate limiting
+- [ ] Logs estructurados
+- [ ] Monitoreo de performance
+- [ ] CI/CD pipeline
+
+## 🤝 Contribución
+
+1. Fork el proyecto
+2. Crear branch de feature (`git checkout -b feature/nueva-funcionalidad`)
+3. Commit los cambios (`git commit -m 'Agregar nueva funcionalidad'`)
+4. Push al branch (`git push origin feature/nueva-funcionalidad`)
+5. Abrir Pull Request
+
+### Estándares de Código
+- **PHP**: PSR-12
+- **JavaScript**: ESLint + Prettier
+- **Vue**: Vue 3 Composition API Style Guide
+- **CSS**: Tailwind CSS utilities preferred
+
+## 📄 Documentación Adicional
+
+- [`DOCUMENTACION_EDITAR_PACIENTES.md`](./DOCUMENTACION_EDITAR_PACIENTES.md) - Documentación completa del sistema de edición de pacientes
+- [`DOCUMENTACION_TECNICA_PACIENTE_EDITAR.md`](./DOCUMENTACION_TECNICA_PACIENTE_EDITAR.md) - Documentación técnica detallada del componente PacienteEditar.vue
+
+## 📞 Soporte
+
+Para reportar bugs, solicitar funcionalidades o hacer preguntas:
+- Crear un issue en este repositorio
+- Incluir información detallada del problema
+- Proporcionar pasos para reproducir bugs
+
+## 📝 Changelog
+
+### v1.0.0 (2025-07-26)
+- ✅ Sistema base de autenticación
+- ✅ Dashboard principal con navegación
+- ✅ Gestión completa de citas con filtrado
+- ✅ Sistema avanzado de edición de pacientes
+- ✅ API RESTful completa
+- ✅ Interfaz responsiva con Tailwind CSS
+- ✅ Comandos Artisan personalizados
+- ✅ Documentación completa
+
+---
+
+## 🏆 Créditos
+
+**Desarrollado con ❤️ para la gestión moderna de consultorios dentales**
+
+### Tecnologías Utilizadas
+- [Laravel](https://laravel.com/) - Framework PHP
+- [Vue.js](https://vuejs.org/) - Framework JavaScript
+- [Tailwind CSS](https://tailwindcss.com/) - Framework CSS
+- [BoxIcons](https://boxicons.com/) - Librería de iconos
+- [Vite](https://vitejs.dev/) - Build tool
+
+**© 2025 DentalSYNC2 - Todos los derechos reservados**
 
 ---
 
@@ -398,56 +755,3 @@ El proyecto incluye tareas preconfiguradas de VS Code:
 - `Build Assets` - Compila assets para producción
 - `Run Migrations` - Ejecuta migraciones
 - `Fresh Migration` - Refresca todas las migraciones
-
-Accede a ellas desde VS Code: `Ctrl+Shift+P` → `Tasks: Run Task`
-
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
-
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
-
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
-
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-## Laravel Sponsors
-
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
-
-### Premium Partners
-
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
