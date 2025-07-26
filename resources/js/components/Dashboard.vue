@@ -103,17 +103,9 @@
             <i :class="['bx', openMenu==='pagos' ? 'bx-chevron-up' : 'bx-chevron-down', 'chevron']"></i>
           </div>
           <div v-if="openMenu==='pagos'" class="sidebar-submenu">
-            <router-link :to="{ path: '/pagos/registrar' }" class="sidebar-sublink" :class="$route.path === '/pagos/registrar' ? 'active-sublink' : ''">
-              <i class='bx bx-money'></i>
-              <span>Registrar pago</span>
-            </router-link>
-            <router-link :to="{ path: '/pagos/ver' }" class="sidebar-sublink" :class="$route.path === '/pagos/ver' ? 'active-sublink' : ''">
-              <i class='bx bx-receipt'></i>
-              <span>Ver Pagos</span>
-            </router-link>
-            <router-link :to="{ path: '/pagos/cuotas' }" class="sidebar-sublink" :class="$route.path === '/pagos/cuotas' ? 'active-sublink' : ''">
-              <i class='bx bx-credit-card'></i>
-              <span>Registrar Pago De Cuota</span>
+            <router-link :to="{ path: '/pagos/gestion' }" class="sidebar-sublink" :class="$route.path === '/pagos/gestion' ? 'active-sublink' : ''">
+              <i class='bx bx-cog'></i>
+              <span>Gestión de Pagos</span>
             </router-link>
           </div>
         </div>

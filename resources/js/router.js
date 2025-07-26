@@ -9,6 +9,7 @@ import PacienteEditar from './components/dashboard/PacienteEditar.vue';
 import PlacaSubir from './components/dashboard/PlacaSubir.vue';
 import PlacaVer from './components/dashboard/PlacaVer.vue';
 import PlacaEliminar from './components/dashboard/PlacaEliminar.vue';
+import GestionPagos from './components/dashboard/GestionPagos.vue';
 
 const routes = [
   {
@@ -146,6 +147,20 @@ const routes = [
         path: 'cuotas',
         name: 'PagoCuotas',
         component: () => import('./components/dashboard/PagoCuotas.vue'),
+        meta: { requiresAuth: true }
+      }
+    ]
+  },
+  {
+    path: '/pagos',
+    name: 'Pagos',
+    component: Dashboard,
+    meta: { requiresAuth: true },
+    children: [
+      {
+        path: 'gestion',
+        name: 'GestionPagos',
+        component: GestionPagos,
         meta: { requiresAuth: true }
       }
     ]

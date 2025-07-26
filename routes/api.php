@@ -6,6 +6,7 @@ use App\Http\Controllers\CitaController;
 use App\Http\Controllers\PacienteController;
 use App\Http\Controllers\PlacaController;
 use App\Http\Controllers\TratamientoController;
+use App\Http\Controllers\PagoController;
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/citas', [CitaController::class, 'index']);
@@ -31,3 +32,13 @@ Route::post('/tratamientos', [TratamientoController::class, 'store']);
 Route::post('/tratamientos/{id}/observacion', [TratamientoController::class, 'addObservacion']);
 Route::put('/tratamientos/{id}/finalizar', [TratamientoController::class, 'finalizar']);
 Route::get('/tratamientos/historial/{pacienteId}', [TratamientoController::class, 'getHistorialClinico']);
+
+// Rutas para sistema de pagos
+Route::prefix('pagos')->group(function () {
+    Route::post('/init-session', [PagoController::class, 'initSession']); // Para pruebas
+    Route::get('/pacientes', [PagoController::class, 'getPacientes']);
+    Route::get('/resumen', [PagoController::class, 'getResumenPagos']);
+    Route::post('/registrar', [PagoController::class, 'registrarPago']);
+    Route::get('/paciente/{pacienteId}', [PagoController::class, 'verPagosPaciente']);
+    Route::post('/cuota', [PagoController::class, 'registrarPagoCuota']);
+});
