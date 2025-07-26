@@ -10,47 +10,83 @@ class CitaController extends Controller
 {
     public function index(Request $request)
     {
-        // Permitir filtrar por fecha (YYYY-MM-DD)
-        $fecha = $request->query('fecha');
-        
-        $query = Cita::with(['paciente', 'usuario']);
-        
-        if ($fecha) {
-            $query->whereDate('fecha', $fecha);
+        try {
+            // Permitir filtrar por fecha (YYYY-MM-DD)
+            $fecha = $request->query('fecha');
+            
+            // Usar consulta directa con JOIN para evitar problemas de mbstring
+            $query = DB::table('citas')
+                ->leftJoin('pacientes', 'citas.paciente_id', '=', 'pacientes.id')
+                ->leftJoin('usuarios', 'citas.usuario_id', '=', 'usuarios.id')
+                ->select(
+                    'citas.id',
+                    'citas.fecha',
+                    'citas.motivo',
+                    'citas.estado',
+                    'citas.fecha_atendida',
+                    'citas.paciente_id',
+                    'citas.usuario_id',
+                    'pacientes.nombre_completo',
+                    'usuarios.nombre as usuario_nombre',
+                    'citas.created_at',
+                    'citas.updated_at'
+                );
+            
+            if ($fecha) {
+                $query->whereDate('citas.fecha', $fecha);
+            }
+            
+            $citas = $query->orderBy('citas.fecha')->get();
+            
+            return response()->json($citas);
+        } catch (\Exception $e) {
+            \Log::error('Error al obtener citas:', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            return response()->json(['error' => 'Error interno del servidor: ' . $e->getMessage()], 500);
         }
-        
-        $citas = $query->orderBy('fecha')->get();
-        
-        // Mapear para devolver nombre_completo y nombre de usuario directamente
-        $citas = $citas->map(function($cita) {
-            return [
-                'id' => $cita->id,
-                'fecha' => $cita->fecha,
-                'motivo' => $cita->motivo,
-                'estado' => $cita->estado,
-                'fecha_atendida' => $cita->fecha_atendida,
-                'paciente_id' => $cita->paciente_id,
-                'usuario_id' => $cita->usuario_id,
-                'nombre_completo' => $cita->paciente ? $cita->paciente->nombre_completo : null,
-                'usuario_nombre' => $cita->usuario ? $cita->usuario->nombre : null,
-            ];
-        });
-        
-        return response()->json($citas);
     }
 
     public function update(Request $request, $id)
     {
-        $cita = Cita::findOrFail($id);
-        $data = $request->only(['estado', 'fecha_atendida']);
-        if (isset($data['estado'])) {
-            $cita->estado = $data['estado'];
-            if ($data['estado'] === 'atendida') {
-                $cita->fecha_atendida = now();
+        try {
+            $data = $request->only(['estado', 'fecha_atendida']);
+            
+            $updateData = ['updated_at' => now()];
+            
+            if (isset($data['estado'])) {
+                $updateData['estado'] = $data['estado'];
+                if ($data['estado'] === 'atendida') {
+                    $updateData['fecha_atendida'] = now();
+                }
             }
+            
+            // Actualizar usando consulta directa
+            DB::table('citas')->where('id', $id)->update($updateData);
+            
+            // Obtener la cita actualizada
+            $cita = DB::table('citas')
+                ->leftJoin('pacientes', 'citas.paciente_id', '=', 'pacientes.id')
+                ->leftJoin('usuarios', 'citas.usuario_id', '=', 'usuarios.id')
+                ->select(
+                    'citas.id',
+                    'citas.fecha',
+                    'citas.motivo',
+                    'citas.estado',
+                    'citas.fecha_atendida',
+                    'citas.paciente_id',
+                    'citas.usuario_id',
+                    'pacientes.nombre_completo',
+                    'usuarios.nombre as usuario_nombre',
+                    'citas.created_at',
+                    'citas.updated_at'
+                )
+                ->where('citas.id', $id)
+                ->first();
+            
+            return response()->json(['success' => true, 'cita' => $cita]);
+        } catch (\Exception $e) {
+            \Log::error('Error al actualizar cita:', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            return response()->json(['error' => 'Error interno del servidor: ' . $e->getMessage()], 500);
         }
-        $cita->save();
-        return response()->json(['success' => true, 'cita' => $cita]);
     }
 
     public function store(Request $request)
@@ -64,29 +100,57 @@ class CitaController extends Controller
                 'estado' => 'string|in:pendiente,confirmada,cancelada,atendida',
             ]);
 
-            // Buscar o crear paciente por nombre
-            $paciente = \App\Models\Paciente::where('nombre_completo', $validated['nombre_completo'])->first();
+            // Buscar o crear paciente por nombre usando consulta directa
+            $paciente = DB::table('pacientes')
+                ->where('nombre_completo', $validated['nombre_completo'])
+                ->first();
             
             if (!$paciente) {
-                // Si no existe el paciente, crear uno básico con solo los campos que existen
-                $paciente = \App\Models\Paciente::create([
+                // Si no existe el paciente, crear uno básico
+                $pacienteId = DB::table('pacientes')->insertGetId([
                     'nombre_completo' => $validated['nombre_completo'],
                     'telefono' => null,
                     'fecha_nacimiento' => null,
                     'ultima_visita' => now()->toDateString(),
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ]);
+            } else {
+                $pacienteId = $paciente->id;
             }
 
-            // Crear la cita
-            $cita = Cita::create([
+            // Crear la cita usando consulta directa
+            $citaId = DB::table('citas')->insertGetId([
                 'fecha' => $validated['fecha'],
                 'motivo' => $validated['motivo'],
                 'estado' => $validated['estado'] ?? 'pendiente',
-                'paciente_id' => $paciente->id,
+                'paciente_id' => $pacienteId,
                 'usuario_id' => 3, // Dr. Juan Pérez (dentista)
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
 
-            return response()->json(['success' => true, 'cita' => $cita->fresh(['paciente', 'usuario'])]);
+            // Obtener la cita creada con los datos del paciente y usuario
+            $cita = DB::table('citas')
+                ->leftJoin('pacientes', 'citas.paciente_id', '=', 'pacientes.id')
+                ->leftJoin('usuarios', 'citas.usuario_id', '=', 'usuarios.id')
+                ->select(
+                    'citas.id',
+                    'citas.fecha',
+                    'citas.motivo',
+                    'citas.estado',
+                    'citas.fecha_atendida',
+                    'citas.paciente_id',
+                    'citas.usuario_id',
+                    'pacientes.nombre_completo',
+                    'usuarios.nombre as usuario_nombre',
+                    'citas.created_at',
+                    'citas.updated_at'
+                )
+                ->where('citas.id', $citaId)
+                ->first();
+
+            return response()->json(['success' => true, 'cita' => $cita]);
         } catch (\Exception $e) {
             \Log::error('Error al crear cita:', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             return response()->json(['error' => 'Error interno del servidor: ' . $e->getMessage()], 500);
@@ -95,8 +159,12 @@ class CitaController extends Controller
 
     public function destroy($id)
     {
-        $cita = Cita::findOrFail($id);
-        $cita->delete();
-        return response()->json(['success' => true]);
+        try {
+            DB::table('citas')->where('id', $id)->delete();
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            \Log::error('Error al eliminar cita:', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            return response()->json(['error' => 'Error interno del servidor: ' . $e->getMessage()], 500);
+        }
     }
 }

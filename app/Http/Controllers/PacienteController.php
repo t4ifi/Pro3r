@@ -9,7 +9,13 @@ class PacienteController extends Controller
 {
     public function index()
     {
-        return response()->json(Paciente::all());
+        try {
+            $pacientes = \DB::table('pacientes')->get();
+            return response()->json($pacientes);
+        } catch (\Exception $e) {
+            \Log::error("Error al obtener pacientes: " . $e->getMessage());
+            return response()->json(['error' => 'Error al cargar pacientes'], 500);
+        }
     }
 
     /**
@@ -20,13 +26,16 @@ class PacienteController extends Controller
         try {
             \Log::info("Buscando paciente con ID: {$id}");
             
-            $paciente = Paciente::findOrFail($id);
+            $paciente = \DB::table('pacientes')->where('id', $id)->first();
+            
+            if (!$paciente) {
+                \Log::error("Paciente no encontrado con ID: {$id}");
+                return response()->json(['error' => 'Paciente no encontrado'], 404);
+            }
+            
             \Log::info("Paciente encontrado: {$paciente->nombre_completo}");
             
             return response()->json($paciente);
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            \Log::error("Paciente no encontrado con ID: {$id}");
-            return response()->json(['error' => 'Paciente no encontrado'], 404);
         } catch (\Exception $e) {
             \Log::error("Error al buscar paciente: {$e->getMessage()}");
             return response()->json(['error' => 'Error interno del servidor'], 500);
