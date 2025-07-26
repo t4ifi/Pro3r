@@ -7,6 +7,9 @@ use App\Http\Controllers\PacienteController;
 use App\Http\Controllers\PlacaController;
 use App\Http\Controllers\TratamientoController;
 use App\Http\Controllers\PagoController;
+use App\Http\Controllers\Api\WhatsappConversacionController;
+use App\Http\Controllers\Api\WhatsappPlantillaController;
+use App\Http\Controllers\Api\WhatsappAutomatizacionController;
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/citas', [CitaController::class, 'index']);
@@ -41,4 +44,27 @@ Route::prefix('pagos')->group(function () {
     Route::post('/registrar', [PagoController::class, 'registrarPago']);
     Route::get('/paciente/{pacienteId}', [PagoController::class, 'verPagosPaciente']);
     Route::post('/cuota', [PagoController::class, 'registrarPagoCuota']);
+});
+
+// Rutas para WhatsApp
+Route::prefix('whatsapp')->group(function () {
+    // Conversaciones
+    Route::get('/conversaciones', [WhatsappConversacionController::class, 'index']);
+    Route::post('/conversaciones', [WhatsappConversacionController::class, 'crear']);
+    Route::get('/conversaciones/{conversacion}/mensajes', [WhatsappConversacionController::class, 'mensajes']);
+    Route::post('/conversaciones/{conversacion}/mensajes', [WhatsappConversacionController::class, 'enviarMensaje']);
+    Route::put('/conversaciones/{conversacion}/estado', [WhatsappConversacionController::class, 'actualizarEstado']);
+    Route::get('/conversaciones/estadisticas', [WhatsappConversacionController::class, 'estadisticas']);
+    
+    // Plantillas
+    Route::get('/plantillas', [WhatsappPlantillaController::class, 'index']);
+    Route::post('/plantillas', [WhatsappPlantillaController::class, 'store']);
+    Route::get('/plantillas/{plantilla}', [WhatsappPlantillaController::class, 'show']);
+    Route::put('/plantillas/{plantilla}', [WhatsappPlantillaController::class, 'update']);
+    Route::delete('/plantillas/{plantilla}', [WhatsappPlantillaController::class, 'destroy']);
+    Route::post('/plantillas/{plantilla}/duplicar', [WhatsappPlantillaController::class, 'duplicar']);
+    Route::put('/plantillas/{plantilla}/toggle', [WhatsappPlantillaController::class, 'toggleEstado']);
+    Route::post('/plantillas/{plantilla}/usar', [WhatsappPlantillaController::class, 'incrementarUsos']);
+    Route::get('/plantillas/categorias/list', [WhatsappPlantillaController::class, 'categorias']);
+    Route::get('/plantillas/estadisticas/resumen', [WhatsappPlantillaController::class, 'estadisticas']);
 });

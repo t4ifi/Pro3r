@@ -131,12 +131,31 @@
             </router-link>
           </div>
         </div>
-        <!-- Mensajes (solo recepcionista) -->
+        <!-- WhatsApp (solo recepcionista) -->
         <div v-if="usuarioGuardado.rol==='recepcionista'" class="sidebar-group">
-          <router-link to="#" class="sidebar-link">
-            <i class='bx bx-message'></i> 
-            <span>Mensajes</span>
-          </router-link>
+          <div :class="['sidebar-link sidebar-link-group', activeGroup==='whatsapp' ? 'active-menu' : '']" @click="toggleMenu('whatsapp')">
+            <i class='bx bxl-whatsapp text-green-500'></i>
+            <span class="sidebar-title">WhatsApp</span>
+            <i :class="['bx', openMenu==='whatsapp' ? 'bx-chevron-up' : 'bx-chevron-down', 'chevron']"></i>
+          </div>
+          <div v-if="openMenu==='whatsapp'" class="sidebar-submenu">
+            <router-link :to="{ path: '/whatsapp/conversaciones' }" class="sidebar-sublink" :class="$route.path === '/whatsapp/conversaciones' ? 'active-sublink' : ''">
+              <i class='bx bx-chat'></i>
+              <span>Conversaciones</span>
+            </router-link>
+            <router-link :to="{ path: '/whatsapp/enviar' }" class="sidebar-sublink" :class="$route.path === '/whatsapp/enviar' ? 'active-sublink' : ''">
+              <i class='bx bx-send'></i>
+              <span>Enviar Mensaje</span>
+            </router-link>
+            <router-link :to="{ path: '/whatsapp/templates' }" class="sidebar-sublink" :class="$route.path === '/whatsapp/templates' ? 'active-sublink' : ''">
+              <i class='bx bx-message-square-detail'></i>
+              <span>Plantillas</span>
+            </router-link>
+            <router-link :to="{ path: '/whatsapp/automaticos' }" class="sidebar-sublink" :class="$route.path === '/whatsapp/automaticos' ? 'active-sublink' : ''">
+              <i class='bx bx-time'></i>
+              <span>Mensajes Automáticos</span>
+            </router-link>
+          </div>
         </div>
       </nav>
       <button class="logout-btn" @click="cerrarSesion">

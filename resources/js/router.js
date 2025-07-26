@@ -166,6 +166,64 @@ const routes = [
     ]
   },
   {
+    path: '/mensajes',
+    name: 'Mensajes',
+    component: Dashboard,
+    meta: { requiresAuth: true },
+    children: [
+      {
+        path: 'bandeja',
+        name: 'MensajesBandeja',
+        component: () => import('./components/dashboard/MensajesBandeja.vue'),
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'nuevo',
+        name: 'MensajesNuevo',
+        component: () => import('./components/dashboard/MensajesNuevo.vue'),
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'enviados',
+        name: 'MensajesEnviados',
+        component: () => import('./components/dashboard/MensajesEnviados.vue'),
+        meta: { requiresAuth: true }
+      }
+    ]
+  },
+  {
+    path: '/whatsapp',
+    name: 'WhatsApp',
+    component: Dashboard,
+    meta: { requiresAuth: true },
+    children: [
+      {
+        path: 'conversaciones',
+        name: 'WhatsAppConversaciones',
+        component: () => import('./components/dashboard/WhatsAppConversaciones.vue'),
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'enviar',
+        name: 'WhatsAppEnviar',
+        component: () => import('./components/dashboard/WhatsAppEnviar.vue'),
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'templates',
+        name: 'WhatsAppTemplates',
+        component: () => import('./components/dashboard/WhatsAppTemplates.vue'),
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'automaticos',
+        name: 'WhatsAppAutomaticos',
+        component: () => import('./components/dashboard/WhatsAppAutomaticos.vue'),
+        meta: { requiresAuth: true }
+      }
+    ]
+  },
+  {
     path: '/panel-dentista',
     name: 'PanelDentista',
     component: Dashboard,
