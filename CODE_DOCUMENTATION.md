@@ -1,4 +1,4 @@
-# 📚 Documentación de Código - DentalSYNC2
+# 📚 Documentación de Código - DentalSync
 
 ## 🎯 **Guía de Desarrollo**
 
@@ -1112,4 +1112,4 @@ curl -X GET "http://127.0.0.1:8000/api/citas?fecha=2025-07-30" \
 
 ---
 
-**📚 Esta documentación refleja el estado actual del sistema DentalSYNC2 completamente funcional después de resolver todos los errores críticos de PHP, mbstring y sintaxis. El sistema está listo para producción.**
+**📚 Esta documentación refleja el estado actual del sistema DentalSync completamente funcional después de resolver todos los errores críticos de PHP, mbstring y sintaxis. El sistema está listo para producción.**
