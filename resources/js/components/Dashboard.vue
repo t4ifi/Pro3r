@@ -43,17 +43,15 @@
               <i class='bx bx-group'></i>
               <span>Ver Pacientes</span>
             </router-link>
-            <router-link v-if="usuarioGuardado.rol==='dentista'" :to="{ path: '/citas/editar-pacientes' }" class="sidebar-sublink" :class="$route.path === '/citas/editar-pacientes' ? 'active-sublink' : ''">
+            <!-- Editar Pacientes - Disponible para ambos roles -->
+            <router-link :to="{ path: '/citas/editar-pacientes' }" class="sidebar-sublink" :class="$route.path === '/citas/editar-pacientes' ? 'active-sublink' : ''">
               <i class='bx bx-edit-alt'></i>
               <span>Editar Pacientes</span>
             </router-link>
+            <!-- Crear Paciente - Solo para recepcionista -->
             <router-link v-if="usuarioGuardado.rol==='recepcionista'" :to="{ path: '/citas/crear-paciente' }" class="sidebar-sublink" :class="$route.path === '/citas/crear-paciente' ? 'active-sublink' : ''">
               <i class='bx bx-user-plus'></i>
               <span>Registrar Paciente</span>
-            </router-link>
-            <router-link v-if="usuarioGuardado.rol==='recepcionista'" :to="{ path: '/citas/editar-paciente' }" class="sidebar-sublink" :class="$route.path === '/citas/editar-paciente' ? 'active-sublink' : ''">
-              <i class='bx bx-user-check'></i>
-              <span>Editar Paciente</span>
             </router-link>
           </div>
         </div>

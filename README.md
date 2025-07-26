@@ -24,8 +24,9 @@ DentalSYNC2 es un sistema integral de gestión para consultorios dentales, desar
 
 ### 🔐 Autenticación y Roles
 - ✅ **Sistema de login** seguro
-- ✅ **Roles diferenciados** (dentista, asistente, administrador)
+- ✅ **Roles diferenciados** (dentista, recepcionista)
 - ✅ **Protección de rutas** basada en roles
+- ✅ **Acceso unificado** - Ambos roles pueden editar pacientes
 
 ### 🎨 Interfaz Moderna
 - ✅ **Diseño responsivo** con Tailwind CSS
@@ -165,12 +166,17 @@ La funcionalidad de edición de pacientes incluye:
 - **Validaciones robustas**: Frontend y backend sincronizadas
 - **Estados visuales**: Carga, éxito, error con feedback claro
 - **Modal de confirmación**: Confirmación visual de operaciones exitosas
+- **🚀 Acceso multi-rol**: Disponible tanto para dentistas como recepcionistas
 
 #### Campos Editables:
 - ✅ Nombre completo (requerido)
 - ✅ Teléfono (opcional)
 - ✅ Fecha de nacimiento (opcional)
 - ✅ Última visita (opcional)
+
+#### Roles con Acceso:
+- 👨‍⚕️ **Dentista**: Acceso completo a edición de pacientes
+- 👩‍💼 **Recepcionista**: Acceso completo a edición de pacientes (misma interfaz)
 
 ### 📅 Gestión de Citas
 
@@ -206,6 +212,15 @@ La funcionalidad de edición de pacientes incluye:
 php artisan patients:create-test
 ```
 Crea 5 pacientes de prueba con información realista para desarrollo y testing.
+
+### Crear Usuarios de Prueba
+```bash
+php artisan users:create-test
+```
+Crea usuarios de prueba para testing de roles:
+- **dentista** / dentista123 (rol: dentista)
+- **recepcionista** / recepcion123 (rol: recepcionista)  
+- **admin** / admin123 (rol: dentista)
 
 ## 📡 API Endpoints
 
@@ -334,6 +349,12 @@ Para reportar bugs, solicitar funcionalidades o hacer preguntas:
 - Proporcionar pasos para reproducir bugs
 
 ## 📝 Changelog
+
+### v1.0.1 (2025-07-26)
+- ✅ **Unificación de roles** - Recepcionista y dentista acceden al mismo panel de edición
+- ✅ **Comando users:create-test** - Crear usuarios de prueba para testing
+- ✅ **Mejora de navegación** - Dashboard unificado para ambos roles
+- ✅ **Documentación actualizada** - Reflejar cambios de roles
 
 ### v1.0.0 (2025-07-26)
 - ✅ Sistema base de autenticación

@@ -2,7 +2,32 @@
 
 ## 🎯 Descripción General
 
-El sistema de edición de pacientes permite a los dentistas modificar la información de los pacientes existentes en la base de datos de manera intuitiva y segura. Esta funcionalidad está diseñada con una interfaz moderna, validaciones robustas y feedback visual completo.
+El sistema de edición de pacientes permite a **dentistas y recepcionistas** modificar la información de los pacientes existentes en la base de datos de manera intuitiva y segura. Esta funcionalidad está diseñada con una interfaz moderna unificada, validaciones robustas y feedback visual completo para ambos roles.
+
+### Roles con Acceso a Edición de Pacientes
+
+| Rol | Acceso | Funcionalidades | Interfaz |
+|-----|--------|----------------|----------|
+| **Dentista** | ✅ Completo | Todas las funciones de edición | Interfaz completa |
+| **Recepcionista** | ✅ Completo | Todas las funciones de edición | **Misma interfaz** |
+
+### Navegación Unificada
+
+Tanto dentistas como recepcionistas acceden a través de:
+```
+Dashboard → Pacientes → Editar Pacientes
+```
+
+**Ruta**: `/citas/editar-pacientes`  
+**Componente**: `PacienteEditar.vue`
+
+### Ventajas de la Unificación
+
+1. **Consistencia**: Misma experiencia para ambos roles
+2. **Mantenimiento**: Un solo componente que mantener
+3. **Capacitación**: Personal entrenado en la misma interfaz
+4. **Eficiencia**: Sin duplicación de código
+5. **Flexibilidad**: Fácil intercambio de tareas entre roles
 
 ## 🏗️ Arquitectura del Sistema
 
@@ -440,6 +465,12 @@ docs(readme): actualizar documentación
 ```
 
 ## 📝 Changelog
+
+### v1.0.1 (2025-01-20)
+- ✅ **Unificación de roles**: Dentistas y recepcionistas tienen el mismo acceso
+- ✅ **Dashboard simplificado**: Navegación consistente para ambos roles
+- ✅ **Comando de usuarios de prueba**: `php artisan users:create-test`
+- ✅ **Documentación actualizada**: Reflejando la unificación de acceso
 
 ### v1.0.0 (2025-07-26)
 - ✅ Implementación inicial del sistema de edición de pacientes
