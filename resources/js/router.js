@@ -132,32 +132,6 @@ const routes = [
     meta: { requiresAuth: true },
     children: [
       {
-        path: 'registrar',
-        name: 'PagoRegistrar',
-        component: () => import('./components/dashboard/PagoRegistrar.vue'),
-        meta: { requiresAuth: true }
-      },
-      {
-        path: 'ver',
-        name: 'PagoVer',
-        component: () => import('./components/dashboard/PagoVer.vue'),
-        meta: { requiresAuth: true }
-      },
-      {
-        path: 'cuotas',
-        name: 'PagoCuotas',
-        component: () => import('./components/dashboard/PagoCuotas.vue'),
-        meta: { requiresAuth: true }
-      }
-    ]
-  },
-  {
-    path: '/pagos',
-    name: 'Pagos',
-    component: Dashboard,
-    meta: { requiresAuth: true },
-    children: [
-      {
         path: 'gestion',
         name: 'GestionPagos',
         component: GestionPagos,

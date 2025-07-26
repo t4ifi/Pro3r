@@ -15,7 +15,10 @@ class Paciente extends Model
         'nombre_completo',
         'telefono',
         'fecha_nacimiento',
-        'ultima_visita'
+        'ultima_visita',
+        'motivo_consulta',
+        'alergias',
+        'observaciones'
     ];
 
     protected $casts = [
