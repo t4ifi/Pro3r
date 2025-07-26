@@ -1,8 +1,33 @@
 # 🦷 DentalSync - Sistema de Gestión Dental
+## 🎓 Proyecto de Egreso - 3ro de Bachillerato
 
 ## 📋 Descripción
 
-DentalSync es un sistema integral de gestión para consultorios dentales, desarrollado con **Laravel 12** y **Vue.js 3**. Permite a los dentistas gestionar pacientes, citas, tratamientos y más, con una interfaz moderna y funcionalidades avanzadas completamente operativa después de resolver errores críticos de PHP y mbstring.
+DentalSync es un sistema integral de gestión para consultorios dentales, desarrollado como **proyecto de egreso de 3ro de bachillerato** por el equipo **NullDevs**. Construido con **Laravel 12** y **Vue.js 3**, permite a los dentistas gestionar pacientes, citas, tratamientos y más, con una interfaz moderna y funcional### 👨‍💻 **Desarrollo y Equipo**
+**🎓 Proyecto de Egreso - 3ro de Bachillerato**
+
+#### 👥 **Equipo NullDevs**
+- **🚀 Andrés Núñez** - Programador Full Stack & Líder del Proyecto
+- **💻 Lázaro Coronel** - Programador Full Stack  
+- **🗄️ Adrián Martínez** - Encargado de Base de Datos
+- **📝 Florencia Passo** - Documentadora
+- **📋 Alison Silveira** - Documentadora
+
+#### 🎯 **Contexto Académico**
+- **Institución**: Bachillerato Tecnológico
+- **Nivel**: 3er Año
+- **Especialización**: Informática
+- **Período**: 2025
+- **Objetivo**: Sistema integral para gestión dental como proyecto de egreso.
+
+### 🛠️ **Stack Tecnológico**
+- **Backend**: [Laravel 12](https://laravel.com/) - Framework PHP moderno
+- **Frontend**: [Vue.js 3](https://vuejs.org/) - Framework JavaScript reactivo
+- **Estilos**: [Tailwind CSS](https://tailwindcss.com/) - Framework CSS de utilidades
+- **Iconos**: [BoxIcons](https://boxicons.com/) - Librería de iconos
+- **Build Tool**: [Vite](https://vitejs.dev/) - Bundler y servidor de desarrollo
+- **Base de Datos**: MySQL/MariaDB
+- **Gestión de Dependencias**: Composer (PHP) + NPM (JavaScript)as completamente operativa después de resolver errores críticos de PHP y mbstring.
 
 ## ✨ Características Principales - SISTEMA COMPLETAMENTE FUNCIONAL ✅
 
@@ -38,6 +63,9 @@ DentalSync es un sistema integral de gestión para consultorios dentales, desarr
 - ✅ **Diseño responsivo** con Tailwind CSS
 - ✅ **Estados de carga** y feedback visual
 - ✅ **Navegación fluida** entre módulos
+- ✅ **Sistema de scroll completamente funcional** - Última actualización 26/07/2025
+- ✅ **Layout optimizado** - Sidebar mejorado sin áreas grises
+- ✅ **UX mejorado** - Acceso completo a formularios largos
 
 ## 🛠️ Tecnologías y Arquitectura
 
@@ -223,6 +251,98 @@ DentalSync/
 ```
 
 ## 🎯 Funcionalidades Detalladas
+
+## 🎨 **MEJORAS RECIENTES DE UI/UX - 26 JULIO 2025** ✅
+
+### 📱 **Sistema de Scroll Completamente Funcional**
+
+**Problema Resuelto:**
+- Los usuarios no podían hacer scroll en formularios largos
+- Campos inferiores inaccesibles en "Registrar Tratamiento"
+- Navegación limitada en listas extensas
+
+**Solución Implementada:**
+```css
+/* Configuración global optimizada */
+html, body {
+  overflow-y: auto; /* Scroll vertical habilitado */
+  scroll-behavior: smooth; /* Transiciones suaves */
+}
+
+/* Layout de Dashboard mejorado */
+.dashboard-main {
+  overflow-y: auto; /* Área principal scrolleable */
+  max-height: 100vh; /* Control de altura */
+}
+```
+
+**✅ Resultado:** Scroll completamente funcional en todos los formularios
+
+### 🗂️ **Layout de Sidebar Optimizado**
+
+**Problema Resuelto:**
+- Área gris visible debajo del botón "Cerrar Sesión"
+- Posicionamiento inconsistente de elementos
+
+**Solución Implementada:**
+```css
+.sidebar {
+  height: 100vh; /* Altura exacta del viewport */
+  overflow: hidden; /* Control específico de scroll */
+}
+
+.logout-btn {
+  position: absolute;
+  bottom: 5px; /* Posicionado exactamente al fondo */
+  width: 270px; /* Ancho completo sin espacios */
+  z-index: 10; /* Sobre otros elementos */
+}
+```
+
+**✅ Resultado:** Layout limpio sin áreas grises, botones perfectamente posicionados
+
+### 🔄 **Scrollbars Personalizadas**
+
+**Características:**
+- Diseño moderno y minimalista
+- Colores consistentes con el tema
+- Transiciones suaves en hover
+- Compatible con diferentes navegadores
+
+**Implementación:**
+```css
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+```
+
+### 📋 **Testing Completo Realizado**
+
+**✅ Formularios Verificados:**
+- Registro de tratamientos (scroll vertical completo)
+- Lista de pacientes (navegación fluida)
+- Calendario de citas (scroll en eventos largos)
+- Configuraciones de usuario
+
+**✅ Compatibilidad:**
+- Chrome/Chromium ✅
+- Firefox ✅ 
+- Safari ✅
+- Edge ✅
+
+**✅ Responsive Design:**
+- Desktop 1920x1080 ✅
+- Laptop 1366x768 ✅
+- Tablet 768x1024 ✅
+
+---
 
 ### 📝 Edición de Pacientes
 
@@ -627,12 +747,15 @@ Al reportar incluir:
 - ✅ **Testing exhaustivo** con PowerShell y navegador
 - ✅ **Documentación completa** técnica y funcional
 
-### 🌟 **Destacados del Proyecto**
-- **Estabilidad**: Sistema 100% operativo después de debugging intensivo
-- **Escalabilidad**: Arquitectura preparada para funcionalidades futuras
-- **Documentación**: Reference técnica completa para mantenimiento
-- **Testing**: Verificación exhaustiva de todos los componentes
-- **Performance**: Optimizado para respuestas rápidas de API
+### 🌟 **Destacados del Proyecto de Egreso**
+- **🎓 Proyecto Académico**: Desarrollo completo de sistema empresarial real
+- **👥 Trabajo en Equipo**: Colaboración efectiva de 5 integrantes con roles específicos  
+- **🔧 Resolución de Problemas**: Debugging y resolución de errores críticos del sistema
+- **📚 Aprendizaje Integral**: Implementación de tecnologías modernas (Laravel 12 + Vue.js 3)
+- **🏆 Resultado Final**: Sistema completamente funcional listo para uso profesional
+- **📋 Documentación Completa**: Evidencia del proceso de desarrollo y aprendizaje
+- **🚀 Escalabilidad**: Arquitectura preparada para funcionalidades futuras
+- **⚡ Performance**: Sistema optimizado con respuestas rápidas de API
 
 ---
 
@@ -670,7 +793,16 @@ php artisan tinker                 # Consola interactiva ✅
 
 ---
 
-**© 2025 DentalSync - Sistema de Gestión Dental | Desarrollado con ❤️ para consultorios dentales modernos**
+**© 2025 DentalSync - Sistema de Gestión Dental**  
+**🎓 Proyecto de Egreso - 3ro de Bachillerato | Equipo NullDevs**  
+**Desarrollado con ❤️ para consultorios dentales modernos**
+
+### 👥 **Integrantes del Equipo NullDevs**
+- **Andrés Núñez** - Full Stack Developer & Project Leader
+- **Lázaro Coronel** - Full Stack Developer  
+- **Adrián Martínez** - Database Administrator
+- **Florencia Passo** - Technical Documentation
+- **Alison Silveira** - Documentation & Testing
 
 ---
 

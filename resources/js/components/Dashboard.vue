@@ -330,6 +330,7 @@ export default {
   display: flex;
   min-height: 100vh;
   background: linear-gradient(90deg, #f6f6f6 60%, #f3eaff 100%);
+  overflow: hidden;
 }
 .sidebar {
   width: 270px;
@@ -338,8 +339,9 @@ export default {
   box-shadow: 2px 0 12px rgba(162,89,255,0.07);
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh;
   position: relative;
+  overflow: hidden;
 }
 .user-info {
   display: flex;
@@ -424,7 +426,7 @@ export default {
   color: #a259ff;
 }
 .logout-btn {
-  position: fixed;
+  position: absolute;
   bottom: 5px;
   left: 0;
   width: 270px;
@@ -448,7 +450,10 @@ export default {
   margin: 0;
   box-shadow: none;
   padding: 24px;
+  overflow-y: auto;
+  max-height: 100vh;
 }
+
 .loader-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
