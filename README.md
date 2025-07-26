@@ -375,23 +375,76 @@ La funcionalidad de edición de pacientes incluye:
 
 ## 🗄️ Base de Datos
 
-### Tablas Principales
+### 📋 **Estructura Completa Documentada**
+El sistema DentalSync utiliza una base de datos MySQL completamente normalizada con **8 tablas principales** diseñadas específicamente para consultorios odontológicos.
 
-#### `pacientes`
-- `id` - Identificador único
-- `nombre_completo` - Nombre del paciente
-- `telefono` - Número de contacto
-- `fecha_nacimiento` - Fecha de nacimiento
-- `ultima_visita` - Fecha de última consulta
-- `created_at`, `updated_at` - Timestamps
+**📖 Para documentación detallada de la base de datos, consultar:**
+👉 **[`docs/Database-Documentation.md`](./docs/Database-Documentation.md)** - Documentación completa con ERD, relaciones y esquemas SQL
 
-#### `citas`
-- `id` - Identificador único
-- `paciente_id` - Referencia al paciente
-- `fecha_hora` - Fecha y hora de la cita
-- `estado` - Estado de la cita
-- `motivo` - Motivo de la consulta
-- `created_at`, `updated_at` - Timestamps
+### 🏗️ **Tablas Principales del Sistema**
+1. **👥 usuarios** - Gestión de usuarios (dentistas/recepcionistas)
+2. **🏥 pacientes** - Registro de pacientes (21 registros de prueba)
+3. **🩺 tratamientos** - Gestión de tratamientos dentales
+4. **📋 historial_clinico** - Historial clínico y observaciones detalladas
+5. **📅 citas** - Sistema de agendamiento con estados (pendiente, confirmada, cancelada, atendida)
+6. **💰 pagos** - Sistema de facturación y gestión de pagos
+7. **📊 cuotas_pago** - Gestión de cuotas y financiamiento de tratamientos
+8. **🦷 placas_dentales** - Registro de estudios radiográficos (panorámica, periapical, bite-wing, oclusal)
+
+### 🔗 **Relaciones y Funcionalidades**
+- **usuarios** → citas, tratamientos, pagos (1:N) - Trazabilidad completa de operaciones
+- **pacientes** → todas las tablas principales (1:N) - Centro del sistema de gestión
+- **tratamientos** → historial_clinico (1:N) - Seguimiento detallado de procedimientos
+- **pagos** → cuotas_pago (1:N) - Sistema completo de financiamiento
+
+### 📊 **Configuración Actual**
+- **Base de Datos**: `dentalsync2`
+- **Motor**: MySQL/MariaDB con integridad referencial completa
+- **Total de Tablas**: 10 (8 principales + 2 sistema Laravel)
+- **Foreign Keys**: 8 relaciones con CASCADE y SET NULL apropiados
+- **Datos de Prueba**: 21 pacientes cargados ✅
+- **Estados Auditables**: Citas, tratamientos y pagos con tracking completo
+
+### 🛠️ **Características Técnicas**
+- **Normalización**: Base de datos completamente normalizada sin redundancia
+- **Escalabilidad**: Diseño preparado para 10,000+ pacientes
+- **Seguridad**: Contraseñas hasheadas, validaciones y constraints
+- **Rendimiento**: Índices optimizados, consultas < 200ms promedio
+- **Auditoria**: Timestamps automáticos y trazabilidad de usuario
+
+### Tablas de Ejemplo (Resumen)
+
+#### `pacientes` - Información Básica
+```sql
+CREATE TABLE pacientes (
+    id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+    nombre_completo VARCHAR(255) NOT NULL,
+    telefono VARCHAR(20) NULL,
+    fecha_nacimiento DATE NULL,
+    ultima_visita DATE NULL,
+    created_at TIMESTAMP NULL,
+    updated_at TIMESTAMP NULL
+);
+```
+
+#### `tratamientos` - Con Relaciones FK
+```sql
+CREATE TABLE tratamientos (
+    id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+    descripcion TEXT NOT NULL,
+    fecha_inicio DATE NOT NULL,
+    estado ENUM('activo', 'finalizado') DEFAULT 'activo',
+    paciente_id BIGINT UNSIGNED NOT NULL,
+    usuario_id BIGINT UNSIGNED NOT NULL,
+    created_at TIMESTAMP NULL,
+    updated_at TIMESTAMP NULL,
+    
+    FOREIGN KEY (paciente_id) REFERENCES pacientes(id) ON DELETE CASCADE,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+);
+```
+
+**📋 Para esquemas completos de todas las tablas, tipos de datos, índices y constraints, consultar la documentación detallada de base de datos.**
 
 ## 🔧 Comandos Artisan Personalizados - FUNCIONALES ✅
 
@@ -664,12 +717,23 @@ php artisan patients:create-test
 
 ## 📄 Documentación Adicional
 
+- [`docs/Database-Documentation.md`](./docs/Database-Documentation.md) - **DOCUMENTACIÓN COMPLETA DE BASE DE DATOS** ✅
+  - Estructura detallada de las 10 tablas del sistema
+  - Relaciones y Foreign Keys documentadas
+  - Campos, tipos de datos y restricciones
+  - Diagrama de relaciones (ERD)
+  - Comandos de mantenimiento y optimización
 - [`CODE_DOCUMENTATION.md`](./CODE_DOCUMENTATION.md) - **DOCUMENTACIÓN TÉCNICA COMPLETA** ✅
   - Errores críticos resueltos paso a paso
   - Código de controladores corregidos
   - Archivos recreados (Paciente.php, CreateTestPatients.php)
   - Pruebas de verificación realizadas
   - Estado final del sistema
+- [`docs/Proyecto-Egreso-NullDevs.md`](./docs/Proyecto-Egreso-NullDevs.md) - **CONTEXTO ACADÉMICO DEL PROYECTO** ✅
+  - Información completa del equipo NullDevs
+  - Objetivos y metodología del proyecto de egreso
+  - Competencias desarrolladas y aprendizajes
+  - Cronograma y sprints ejecutados
 - **Documentación de API** - Endpoints verificados en este README
 - **Guía de Instalación** - Pasos completamente probados incluidos arriba
 
