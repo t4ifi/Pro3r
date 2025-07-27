@@ -180,7 +180,13 @@
         <!-- Información del paciente y sus pagos -->
         <div v-if="pagosPaciente" class="info-paciente">
           <div class="paciente-header">
-            <h4>👤 {{ pagosPaciente.paciente.nombre_completo }}</h4>
+            <div class="header-content">
+              <h4>👤 {{ pagosPaciente.paciente.nombre_completo }}</h4>
+              <button @click="exportarPagosPDF" class="btn-pdf" :disabled="cargando">
+                <i class='bx bx-file-export'></i>
+                {{ cargando ? 'Generando...' : 'Exportar PDF' }}
+              </button>
+            </div>
             <div class="totales-paciente">
               <div class="total-item">
                 <span>Total Tratamientos:</span>
@@ -370,6 +376,9 @@
 </template>
 
 <script>
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+
 export default {
   name: 'GestionPagos',
   data() {
@@ -705,6 +714,271 @@ export default {
       const montoLimpio = parseFloat(this.limpiarMonto(pago.monto_cuota));
       const saldoRestante = parseFloat(pago.saldo_restante);
       return montoLimpio > 0 && montoLimpio <= saldoRestante;
+    },
+    
+    // Exportar pagos a PDF
+    async exportarPagosPDF() {
+      try {
+        if (!this.pagosPaciente) {
+          this.mostrarMensaje('No hay datos para exportar', 'error');
+          return;
+        }
+        
+        this.cargando = true;
+        
+        // Obtener información del usuario actual
+        const usuarioActual = await this.obtenerUsuarioActual();
+        
+        const doc = new jsPDF();
+        
+        // === CONFIGURACIÓN DEL DOCUMENTO ===
+        const fechaActual = new Date().toLocaleDateString('es-AR', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+        
+        // === ENCABEZADO ===
+        doc.setFillColor(162, 89, 255);
+        doc.rect(0, 0, 210, 40, 'F');
+        
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(22);
+        doc.setFont('helvetica', 'bold');
+        doc.text('REPORTE DE PAGOS DE PACIENTE', 105, 20, { align: 'center' });
+        
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`Generado el: ${fechaActual}`, 105, 30, { align: 'center' });
+        
+        // === INFORMACIÓN DEL PACIENTE ===
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(16);
+        doc.setFont('helvetica', 'bold');
+        doc.text('INFORMACIÓN DEL PACIENTE', 20, 55);
+        
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`Paciente: ${this.pagosPaciente.paciente.nombre_completo}`, 20, 70);
+        
+        // === RESUMEN FINANCIERO ===
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.text('RESUMEN FINANCIERO', 20, 90);
+        
+        const resumenData = [
+          ['Total Tratamientos', `$${this.formatearMonto(this.pagosPaciente.totales.monto_total_tratamientos)}`],
+          ['Total Pagado', `$${this.formatearMonto(this.pagosPaciente.totales.monto_total_pagado)}`],
+          ['Saldo Restante', `$${this.formatearMonto(this.pagosPaciente.totales.saldo_total_restante)}`]
+        ];
+        
+        autoTable(doc, {
+          startY: 95,
+          head: [['Concepto', 'Monto']],
+          body: resumenData,
+          theme: 'striped',
+          headStyles: {
+            fillColor: [162, 89, 255],
+            textColor: [255, 255, 255],
+            fontStyle: 'bold'
+          },
+          styles: {
+            fontSize: 11,
+            cellPadding: 8
+          },
+          columnStyles: {
+            1: { halign: 'right', fontStyle: 'bold' }
+          }
+        });
+        
+        let yPosition = doc.lastAutoTable.finalY + 20;
+        
+        // === DETALLE DE TRATAMIENTOS ===
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.text('DETALLE DE TRATAMIENTOS Y PAGOS', 20, yPosition);
+        
+        yPosition += 10;
+        
+        // Procesar cada tratamiento
+        for (const pago of this.pagosPaciente.pagos) {
+          // Verificar si necesitamos nueva página
+          if (yPosition > 250) {
+            doc.addPage();
+            yPosition = 20;
+          }
+          
+          // Información del tratamiento
+          const tratamientoData = [
+            ['Descripción', pago.descripcion],
+            ['Monto Total', `$${this.formatearMonto(pago.monto_total)}`],
+            ['Modalidad', this.obtenerTextoModalidad(pago.modalidad_pago)],
+            ['Estado', this.obtenerTextoEstado(pago.estado_pago)],
+            ['Monto Pagado', `$${this.formatearMonto(pago.monto_pagado)}`],
+            ['Saldo Restante', `$${this.formatearMonto(pago.saldo_restante)}`],
+            ['% Completado', `${this.calcularPorcentajePago(pago)}%`]
+          ];
+          
+          autoTable(doc, {
+            startY: yPosition,
+            head: [['Tratamiento', 'Información']],
+            body: tratamientoData,
+            theme: 'grid',
+            headStyles: {
+              fillColor: [52, 152, 219],
+              textColor: [255, 255, 255],
+              fontStyle: 'bold'
+            },
+            styles: {
+              fontSize: 10,
+              cellPadding: 6
+            },
+            columnStyles: {
+              0: { fontStyle: 'bold', cellWidth: 40 },
+              1: { cellWidth: 130 }
+            }
+          });
+          
+          yPosition = doc.lastAutoTable.finalY + 5;
+          
+          // Historial de pagos del tratamiento
+          if (pago.detalles_pagos && pago.detalles_pagos.length > 0) {
+            if (yPosition > 240) {
+              doc.addPage();
+              yPosition = 20;
+            }
+            
+            doc.setFontSize(11);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Historial de Pagos:', 20, yPosition);
+            yPosition += 5;
+            
+            const pagosData = pago.detalles_pagos.map(detalle => [
+              this.formatearFecha(detalle.fecha_pago),
+              `$${this.formatearMonto(detalle.monto_parcial)}`,
+              detalle.descripcion || 'Pago parcial',
+              detalle.nombre_usuario || 'Sistema'
+            ]);
+            
+            autoTable(doc, {
+              startY: yPosition,
+              head: [['Fecha', 'Monto', 'Descripción', 'Registrado por']],
+              body: pagosData,
+              theme: 'striped',
+              headStyles: {
+                fillColor: [46, 204, 113],
+                textColor: [255, 255, 255],
+                fontStyle: 'bold'
+              },
+              styles: {
+                fontSize: 9,
+                cellPadding: 5
+              },
+              columnStyles: {
+                0: { cellWidth: 25 },
+                1: { cellWidth: 25, halign: 'right' },
+                2: { cellWidth: 60 },
+                3: { cellWidth: 40 }
+              }
+            });
+            
+            yPosition = doc.lastAutoTable.finalY + 10;
+          }
+          
+          // Información de cuotas para pagos en cuotas fijas
+          if (pago.modalidad_pago === 'cuotas_fijas' && pago.cuotas && pago.cuotas.length > 0) {
+            if (yPosition > 240) {
+              doc.addPage();
+              yPosition = 20;
+            }
+            
+            doc.setFontSize(11);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Plan de Cuotas:', 20, yPosition);
+            yPosition += 5;
+            
+            const cuotasData = pago.cuotas.map(cuota => [
+              `Cuota ${cuota.numero_cuota}`,
+              `$${this.formatearMonto(cuota.monto)}`,
+              this.formatearFecha(cuota.fecha_vencimiento),
+              cuota.estado === 'pagada' ? 'PAGADA' : 'PENDIENTE'
+            ]);
+            
+            autoTable(doc, {
+              startY: yPosition,
+              head: [['Cuota', 'Monto', 'Vencimiento', 'Estado']],
+              body: cuotasData,
+              theme: 'striped',
+              headStyles: {
+                fillColor: [155, 89, 182],
+                textColor: [255, 255, 255],
+                fontStyle: 'bold'
+              },
+              styles: {
+                fontSize: 9,
+                cellPadding: 5
+              },
+              columnStyles: {
+                0: { cellWidth: 30 },
+                1: { cellWidth: 30, halign: 'right' },
+                2: { cellWidth: 35 },
+                3: { cellWidth: 30, halign: 'center' }
+              }
+            });
+            
+            yPosition = doc.lastAutoTable.finalY + 15;
+          }
+        }
+        
+        // === PIE DE PÁGINA ===
+        const totalPages = doc.internal.getNumberOfPages();
+        for (let i = 1; i <= totalPages; i++) {
+          doc.setPage(i);
+          
+          // Información del usuario que generó el reporte
+          doc.setFontSize(8);
+          doc.setFont('helvetica', 'normal');
+          doc.setTextColor(100, 100, 100);
+          doc.text(`Reporte generado por: ${usuarioActual.nombre} (${usuarioActual.email})`, 20, 285);
+          doc.text(`Página ${i} de ${totalPages}`, 170, 285);
+          
+          // Línea decorativa
+          doc.setDrawColor(162, 89, 255);
+          doc.setLineWidth(0.5);
+          doc.line(20, 280, 190, 280);
+        }
+        
+        // Guardar el archivo
+        const nombreArchivo = `Pagos_${this.pagosPaciente.paciente.nombre_completo.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
+        doc.save(nombreArchivo);
+        
+        this.mostrarMensaje('PDF exportado exitosamente', 'exito');
+        
+      } catch (error) {
+        console.error('Error al exportar PDF:', error);
+        this.mostrarMensaje('Error al generar el PDF', 'error');
+      } finally {
+        this.cargando = false;
+      }
+    },
+    
+    // Obtener información del usuario actual
+    async obtenerUsuarioActual() {
+      try {
+        const response = await fetch('/api/user');
+        const data = await response.json();
+        return {
+          nombre: data.user?.name || 'Usuario no identificado',
+          email: data.user?.email || 'email@noidentificado.com'
+        };
+      } catch (error) {
+        return {
+          nombre: 'Usuario no identificado',
+          email: 'email@noidentificado.com'
+        };
+      }
     }
   }
 }
@@ -898,9 +1172,47 @@ export default {
   margin-bottom: 20px;
 }
 
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
 .paciente-header h4 {
-  margin: 0 0 15px 0;
+  margin: 0;
   color: #333;
+}
+
+.btn-pdf {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+}
+
+.btn-pdf:hover:not(:disabled) {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+}
+
+.btn-pdf:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .totales-paciente {
@@ -1180,6 +1492,15 @@ export default {
   
   .cuotas-grid {
     grid-template-columns: 1fr;
+  }
+  
+  .header-content {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .btn-pdf {
+    justify-content: center;
   }
 }
 

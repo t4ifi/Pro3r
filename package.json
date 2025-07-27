@@ -19,6 +19,8 @@
         "@fortawesome/free-solid-svg-icons": "^7.0.0",
         "@fortawesome/vue-fontawesome": "^3.1.0",
         "@vitejs/plugin-vue": "^6.0.0",
+        "jspdf": "^3.0.1",
+        "jspdf-autotable": "^5.0.2",
         "v-calendar": "^3.1.2",
         "vue": "^3.5.17",
         "vue-cal": "^4.10.2",
