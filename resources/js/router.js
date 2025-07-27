@@ -148,19 +148,25 @@ const routes = [
       {
         path: 'ver',
         name: 'UsuarioVer',
-        component: () => import('./components/dashboard/UsuarioVer.vue'),
+        component: () => import('./components/UsuariosVer.vue'),
         meta: { requiresAuth: true }
       },
       {
-        path: 'editar',
+        path: 'editar-lista',
+        name: 'UsuarioEditarLista',
+        component: () => import('./components/UsuariosEditarLista.vue'),
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'editar/:id',
         name: 'UsuarioEditar',
-        component: () => import('./components/dashboard/UsuarioEditar.vue'),
+        component: () => import('./components/UsuariosEditar.vue'),
         meta: { requiresAuth: true }
       },
       {
         path: 'crear',
         name: 'UsuarioCrear',
-        component: () => import('./components/dashboard/UsuarioCrear.vue'),
+        component: () => import('./components/UsuariosCrear.vue'),
         meta: { requiresAuth: true }
       }
     ]

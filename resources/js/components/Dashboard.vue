@@ -121,7 +121,7 @@
               <i class='bx bx-group'></i>
               <span>Ver Usuarios</span>
             </router-link>
-            <router-link :to="{ path: '/usuarios/editar' }" class="sidebar-sublink" :class="$route.path === '/usuarios/editar' ? 'active-sublink' : ''">
+            <router-link :to="{ path: '/usuarios/editar-lista' }" class="sidebar-sublink" :class="$route.path === '/usuarios/editar-lista' || $route.path.startsWith('/usuarios/editar/') ? 'active-sublink' : ''">
               <i class='bx bx-edit'></i>
               <span>Editar Usuarios</span>
             </router-link>

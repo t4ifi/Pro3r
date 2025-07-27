@@ -7,6 +7,7 @@ use App\Http\Controllers\PacienteController;
 use App\Http\Controllers\PlacaController;
 use App\Http\Controllers\TratamientoController;
 use App\Http\Controllers\PagoController;
+use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\Api\WhatsappConversacionController;
 use App\Http\Controllers\Api\WhatsappPlantillaController;
 use App\Http\Controllers\Api\WhatsappAutomatizacionController;
@@ -67,4 +68,15 @@ Route::prefix('whatsapp')->group(function () {
     Route::post('/plantillas/{plantilla}/usar', [WhatsappPlantillaController::class, 'incrementarUsos']);
     Route::get('/plantillas/categorias/list', [WhatsappPlantillaController::class, 'categorias']);
     Route::get('/plantillas/estadisticas/resumen', [WhatsappPlantillaController::class, 'estadisticas']);
+});
+
+// Rutas para usuarios
+Route::prefix('usuarios')->group(function () {
+    Route::get('/', [UsuarioController::class, 'index']);
+    Route::post('/', [UsuarioController::class, 'store']);
+    Route::get('/{id}', [UsuarioController::class, 'show']);
+    Route::put('/{id}', [UsuarioController::class, 'update']);
+    Route::delete('/{id}', [UsuarioController::class, 'destroy']);
+    Route::post('/{id}/toggle-status', [UsuarioController::class, 'toggleStatus']);
+    Route::get('/estadisticas/resumen', [UsuarioController::class, 'statistics']);
 });

@@ -107,6 +107,12 @@ class PlacaController extends Controller
             ], 201);
 
         } catch (\Exception $e) {
+            \Log::error('PlacaController@store - Error', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ]);
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error al subir la placa dental: ' . $e->getMessage()
