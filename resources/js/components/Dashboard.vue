@@ -242,6 +242,11 @@ export default {
         path.includes('mensaje')
       ) {
         return 'mensajes';
+      } else if (
+        path.startsWith('/whatsapp') ||
+        path.includes('whatsapp')
+      ) {
+        return 'whatsapp';
       } else {
         return null;
       }
@@ -326,6 +331,13 @@ export default {
         path.includes('mensaje')
       ) {
         this.openMenu = 'mensajes';
+      } 
+      // Para WhatsApp
+      else if (
+        path.startsWith('/whatsapp') ||
+        path.includes('whatsapp')
+      ) {
+        this.openMenu = 'whatsapp';
       } 
       // Si no coincide con ningún módulo, cierra todos los menús
       else {
