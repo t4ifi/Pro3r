@@ -194,7 +194,7 @@ export default {
       cargando: false,
       openMenu: null,
       moduloActivo: 'citas', // Por defecto, mostrar Citas
-      usuarioGuardado: JSON.parse(localStorage.getItem('usuario') || '{}')
+      usuarioGuardado: JSON.parse(sessionStorage.getItem('usuario') || '{}')
     };
   },
   mounted() {
@@ -256,7 +256,7 @@ export default {
     cerrarSesion() {
       this.cargando = true;
       setTimeout(() => {
-        localStorage.removeItem('usuario');
+        sessionStorage.removeItem('usuario');
         window.location.reload();
       }, 1000);
     },

@@ -293,8 +293,8 @@ erDiagram
      });
      
      if (response.data.success) {
-       localStorage.setItem('token', response.data.token);
-       localStorage.setItem('user', JSON.stringify(response.data.user));
+       sessionStorage.setItem('token', response.data.token);
+       sessionStorage.setItem('user', JSON.stringify(response.data.user));
        this.$router.push('/citas/calendario');
      }
    }
@@ -343,6 +343,32 @@ erDiagram
 - ✅ WhatsApp con pacientes
 - ❌ Acceso limitado a historial clínico
 - ❌ No puede realizar diagnósticos
+
+### Gestión de Sesiones
+
+#### 🔒 **Política de Sesiones**
+El sistema utiliza **sessionStorage** en lugar de localStorage para garantizar que:
+- **🚪 Cierre automático**: Al cerrar la ventana/pestaña del navegador, la sesión se elimina automáticamente
+- **🔐 Seguridad mejorada**: No persiste información sensible entre sesiones del navegador
+- **👤 Re-autenticación**: El usuario debe iniciar sesión nuevamente cada vez que abre el navegador
+
+#### 📝 **Implementación Técnica**
+```javascript
+// Guardar sesión (solo durante la sesión del navegador)
+sessionStorage.setItem('usuario', JSON.stringify(userData));
+
+// Verificar sesión activa
+const usuario = sessionStorage.getItem('usuario');
+
+// Eliminar sesión al cerrar sesión
+sessionStorage.removeItem('usuario');
+```
+
+#### ⚡ **Ventajas del Sistema**
+- **Seguridad**: Datos sensibles no persisten en el disco
+- **Privacidad**: Ideal para computadoras compartidas
+- **Control**: Sesiones se cierran automáticamente
+- **Cumplimiento**: Mejor para estándares de seguridad médica
 
 ---
 

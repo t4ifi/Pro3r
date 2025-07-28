@@ -323,7 +323,7 @@ const historialFiltrado = computed(...)     // Historial filtrado
 - Paginación en backend para pacientes
 
 ## Contacto y Soporte
-- **Desarrollador**: GitHub Copilot AI Assistant
+- **Desarrollador**: Andrés Nuñez
 - **Fecha de documentación**: 26 de julio de 2025
 - **Versión del sistema**: DentalSync v1.0
 - **Framework**: Laravel 12 + Vue.js 3

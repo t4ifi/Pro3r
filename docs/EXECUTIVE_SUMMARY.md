@@ -359,5 +359,5 @@ El **Sistema de Integración WhatsApp** para la Clínica Dental Pro ha sido desa
 
 **📅 Proyecto completado**: 26 de Julio, 2025  
 **🏷️ Versión**: 1.0.0 - Production Ready  
-**👨‍💻 Desarrollado por**: GitHub Copilot Assistant  
+**👨‍💻 Desarrollado por**: Andrés Nuñez  
 **🏥 Cliente**: Clínica Dental Pro

@@ -230,7 +230,7 @@ async function confirmarEliminar() {
   cerrarConfirmar();
 }
 
-const usuarioGuardado = JSON.parse(localStorage.getItem('usuario') || '{}');
+const usuarioGuardado = JSON.parse(sessionStorage.getItem('usuario') || '{}');
 
 function abrirModalAgendar() {
   vistaActiva.value = 'agendar';

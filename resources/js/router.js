@@ -253,7 +253,7 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  const usuario = localStorage.getItem('usuario');
+  const usuario = sessionStorage.getItem('usuario');
   if (to.meta.requiresAuth && !usuario) {
     next('/login');
   } else if (to.path === '/login' && usuario) {

@@ -227,16 +227,16 @@
     </div>
 
     <!-- Modal de Crear/Editar Plantilla -->
-    <div v-if="modalAbierto" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div class="p-6 border-b border-gray-200">
-          <h2 class="text-2xl font-bold text-gray-800">
+    <div v-if="modalAbierto" class="modal-overlay">
+      <div class="modal-container">
+        <div class="modal-header">
+          <h2 class="modal-title">
             <i :class="[modalTipo === 'crear' ? 'bx bx-plus' : 'bx bx-edit', 'mr-2']"></i>
             {{ modalTipo === 'crear' ? 'Crear Nueva Plantilla' : 'Editar Plantilla' }}
           </h2>
         </div>
 
-        <form @submit.prevent="guardarPlantilla" class="p-6">
+        <form @submit.prevent="guardarPlantilla" class="modal-form">
           <div class="space-y-6">
             <!-- Información básica -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -383,28 +383,28 @@
     </div>
 
     <!-- Modal de Confirmación -->
-    <div v-if="mostrarConfirmacion" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white rounded-xl p-8 max-w-md mx-4 shadow-2xl">
-        <div class="text-center">
-          <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
-            <i class='bx bx-trash text-red-600 text-2xl'></i>
+    <div v-if="mostrarConfirmacion" class="modal-overlay">
+      <div class="confirmation-modal">
+        <div class="confirmation-content">
+          <div class="confirmation-icon">
+            <i class='bx bx-trash'></i>
           </div>
-          <h3 class="text-lg font-semibold text-gray-900 mb-2">
+          <h3 class="confirmation-title">
             Eliminar Plantilla
           </h3>
-          <p class="text-gray-600 mb-6">
+          <p class="confirmation-text">
             ¿Estás seguro de que quieres eliminar la plantilla "{{ plantillaAEliminar?.nombre }}"? Esta acción no se puede deshacer.
           </p>
-          <div class="flex gap-3">
+          <div class="confirmation-buttons">
             <button 
               @click="confirmarEliminacion"
-              class="flex-1 bg-red-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-600 transition-colors"
+              class="btn-danger"
             >
               Eliminar
             </button>
             <button 
               @click="mostrarConfirmacion = false"
-              class="flex-1 bg-gray-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-gray-600 transition-colors"
+              class="btn-cancel"
             >
               Cancelar
             </button>
@@ -804,8 +804,28 @@ onMounted(() => {
   to { opacity: 1; transform: translateX(0); }
 }
 
+@keyframes modalIn {
+  from { 
+    opacity: 0; 
+    transform: scale(0.95) translateY(-20px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: scale(1) translateY(0); 
+  }
+}
+
 .min-h-screen {
   animation: fadeIn 0.6s ease-out;
+}
+
+/* Modal específico */
+.fixed.inset-0 {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.bg-white.rounded-xl.shadow-2xl {
+  animation: modalIn 0.3s ease-out;
 }
 
 /* Efectos hover */
@@ -832,5 +852,177 @@ onMounted(() => {
 /* Vista previa estilo WhatsApp */
 .bg-green-50 {
   background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23f0f9ff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* Estilos para mejorar la accesibilidad del modal */
+.fixed.inset-0[style*="background"] {
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* Asegurar que el contenido del modal esté por encima */
+.bg-white.rounded-xl {
+  position: relative;
+  z-index: 1000;
+}
+
+/* Estilos específicos del modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.modal-container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+  max-width: 42rem;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: modalIn 0.3s ease-out;
+}
+
+.modal-header {
+  padding: 1.5rem;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.modal-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+  display: flex;
+  align-items: center;
+}
+
+.modal-form {
+  padding: 1.5rem;
+}
+
+.modal-form .space-y-6 > * + * {
+  margin-top: 1.5rem;
+}
+
+.modal-form .grid {
+  display: grid;
+}
+
+.modal-form .grid-cols-1 {
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+@media (min-width: 768px) {
+  .modal-form .md\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  
+  .modal-form .md\:grid-cols-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.modal-form .gap-4 {
+  gap: 1rem;
+}
+
+.modal-form .gap-2 {
+  gap: 0.5rem;
+}
+
+.modal-form .gap-3 {
+  gap: 0.75rem;
+}
+
+/* Modal de confirmación */
+.confirmation-modal {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+  max-width: 28rem;
+  width: 100%;
+  margin: 1rem;
+  animation: modalIn 0.3s ease-out;
+}
+
+.confirmation-content {
+  text-align: center;
+  padding: 2rem;
+}
+
+.confirmation-icon {
+  margin: 0 auto 1rem auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 3rem;
+  width: 3rem;
+  border-radius: 50%;
+  background-color: #fee2e2;
+  color: #dc2626;
+  font-size: 1.5rem;
+}
+
+.confirmation-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 0.5rem;
+}
+
+.confirmation-text {
+  color: #6b7280;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+.confirmation-buttons {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.btn-danger {
+  flex: 1;
+  background-color: #ef4444;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-danger:hover {
+  background-color: #dc2626;
+}
+
+.btn-cancel {
+  flex: 1;
+  background-color: #6b7280;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-cancel:hover {
+  background-color: #4b5563;
 }
 </style>

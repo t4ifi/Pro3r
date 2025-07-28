@@ -4,7 +4,7 @@
 
 **Fecha**: 26 de Julio de 2025  
 **Módulo**: Sistema de Gestión de Pagos  
-**Desarrollador**: Sistema Copilot  
+**Desarrollador**: Andrés Nuñez  
 
 ---
 
