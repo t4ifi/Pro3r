@@ -158,6 +158,7 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
+import axios from 'axios';
 
 const emit = defineEmits(['cita-agendada']);
 
@@ -192,10 +193,8 @@ const isFormValid = computed(() => {
 // Cargar pacientes al montar el componente
 onMounted(async () => {
   try {
-    const res = await fetch('/api/pacientes');
-    if (res.ok) {
-      pacientes.value = await res.json();
-    }
+    const res = await axios.get('/api/pacientes');
+    pacientes.value = res.data.data || res.data || [];
   } catch (err) {
     console.error('Error al cargar pacientes:', err);
     pacientes.value = [];
@@ -211,33 +210,22 @@ async function agendarCita() {
   cargando.value = true;
   
   try {
-    const res = await fetch('/api/citas', {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify({
-        nombre_completo: form.value.paciente,
-        fecha: form.value.fecha + 'T' + form.value.hora,
-        motivo: form.value.motivo.trim(),
-        estado: 'pendiente'
-      })
+    const res = await axios.post('/api/citas', {
+      nombre_completo: form.value.paciente,
+      fecha: form.value.fecha + 'T' + form.value.hora,
+      motivo: form.value.motivo.trim(),
+      estado: 'pendiente'
     });
     
-    if (res.ok) {
-      exito.value = true;
-      emit('cita-agendada');
+    exito.value = true;
+    emit('cita-agendada');
       
-      // Limpiar formulario después de 2 segundos
-      setTimeout(() => {
-        limpiarFormulario();
-        exito.value = false;
-      }, 3000);
-    } else {
-      error.value = true;
-      setTimeout(() => error.value = false, 5000);
-    }
+    // Limpiar formulario después de 2 segundos
+    setTimeout(() => {
+      limpiarFormulario();
+      exito.value = false;
+    }, 3000);
+    
   } catch (err) {
     console.error('Error al agendar cita:', err);
     error.value = true;

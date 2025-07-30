@@ -75,8 +75,8 @@ export default {
         });
         
         // Login exitoso
-        sessionStorage.setItem('usuario', JSON.stringify(response.data));
-        this.usuarioGuardado = response.data;
+        sessionStorage.setItem('usuario', JSON.stringify(response.data.data));
+        this.usuarioGuardado = response.data.data;
         this.success = response.data.message || 'Inicio de sesión exitoso';
         this.cargando = false;
         

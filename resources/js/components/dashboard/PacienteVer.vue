@@ -560,6 +560,7 @@
 import { ref, computed, onMounted } from 'vue'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
+import axios from 'axios'
 
 export default {
   name: 'PacienteVer',
@@ -588,13 +589,8 @@ export default {
       loading.value = true
       error.value = ''
       try {
-        const response = await fetch('/api/pacientes')
-        if (response.ok) {
-          const data = await response.json()
-          pacientes.value = data
-        } else {
-          throw new Error('Error al cargar los pacientes')
-        }
+        const response = await axios.get('/api/pacientes')
+        pacientes.value = response.data.data || response.data || []
       } catch (err) {
         error.value = 'Error al cargar los pacientes: ' + err.message
         console.error('Error:', err)

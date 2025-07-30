@@ -296,4 +296,12 @@ class UsuarioController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Get statistics resumen - alias for statistics()
+     */
+    public function getEstadisticas()
+    {
+        return $this->statistics();
+    }
 }

@@ -2,6 +2,8 @@
  * WhatsApp Manager - Servicio principal para la gestión de WhatsApp
  * Integrado con el backend de Laravel
  */
+import axios from 'axios';
+
 class WhatsAppManager {
     constructor() {
         this.isSimulation = true; // Se cambiará a false en producción
@@ -46,13 +48,12 @@ class WhatsAppManager {
     async getConversations(filters = {}) {
         try {
             const params = new URLSearchParams(filters);
-            const response = await fetch(`${this.apiUrl}/conversaciones?${params}`);
-            const data = await response.json();
+            const response = await axios.get(`${this.apiUrl}/conversaciones?${params}`);
             
-            if (data.success) {
-                return data.data;
+            if (response.data.success) {
+                return response.data.data;
             } else {
-                throw new Error(data.message || 'Error al cargar conversaciones');
+                throw new Error(response.data.message || 'Error al cargar conversaciones');
             }
         } catch (error) {
             console.error('Error cargando conversaciones:', error);
@@ -158,13 +159,12 @@ class WhatsAppManager {
     async getTemplates(filters = {}) {
         try {
             const params = new URLSearchParams(filters);
-            const response = await fetch(`${this.apiUrl}/plantillas?${params}`);
-            const data = await response.json();
+            const response = await axios.get(`${this.apiUrl}/plantillas?${params}`);
             
-            if (data.success) {
-                return data.data;
+            if (response.data.success) {
+                return response.data.data;
             } else {
-                throw new Error(data.message || 'Error al cargar plantillas');
+                throw new Error(response.data.message || 'Error al cargar plantillas');
             }
         } catch (error) {
             console.error('Error cargando plantillas:', error);

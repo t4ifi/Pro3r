@@ -186,6 +186,7 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
+import axios from 'axios';
 
 // Estados reactivos
 const pacientes = ref([]);
@@ -206,14 +207,10 @@ const fechaMaxima = computed(() => {
  */
 onMounted(async () => {
   try {
-    const response = await fetch('/api/pacientes');
-    if (response.ok) {
-      pacientes.value = await response.json();
-    } else {
-      console.error('Error al cargar pacientes');
-    }
+    const response = await axios.get('/api/pacientes');
+    pacientes.value = response.data.data || response.data || [];
   } catch (error) {
-    console.error('Error de conexión:', error);
+    console.error('Error al cargar pacientes:', error);
   }
 });
 
@@ -227,18 +224,14 @@ async function cargarPaciente() {
   errores.value = [];
   
   try {
-    const response = await fetch(`/api/pacientes/${pacienteId.value}`);
-    if (response.ok) {
-      const data = await response.json();
-      pacienteSeleccionado.value = {
-        ...data,
-        // Formatear fechas para el input date
-        fecha_nacimiento: data.fecha_nacimiento ? data.fecha_nacimiento.split('T')[0] : '',
-        ultima_visita: data.ultima_visita ? data.ultima_visita.split('T')[0] : ''
-      };
-    } else {
-      errores.value = ['Error al cargar información del paciente'];
-    }
+    const response = await axios.get(`/api/pacientes/${pacienteId.value}`);
+    const data = response.data.data || response.data;
+    pacienteSeleccionado.value = {
+      ...data,
+      // Formatear fechas para el input date
+      fecha_nacimiento: data.fecha_nacimiento ? data.fecha_nacimiento.split('T')[0] : '',
+      ultima_visita: data.ultima_visita ? data.ultima_visita.split('T')[0] : ''
+    };
   } catch (error) {
     errores.value = ['Error de conexión al cargar paciente'];
     console.error('Error:', error);
@@ -257,18 +250,11 @@ async function editarPaciente() {
   errores.value = [];
   
   try {
-    const response = await fetch(`/api/pacientes/${pacienteSeleccionado.value.id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify({
-        nombre_completo: pacienteSeleccionado.value.nombre_completo,
-        telefono: pacienteSeleccionado.value.telefono,
-        fecha_nacimiento: pacienteSeleccionado.value.fecha_nacimiento,
-        ultima_visita: pacienteSeleccionado.value.ultima_visita
-      })
+    const response = await axios.put(`/api/pacientes/${pacienteSeleccionado.value.id}`, {
+      nombre_completo: pacienteSeleccionado.value.nombre_completo,
+      telefono: pacienteSeleccionado.value.telefono,
+      fecha_nacimiento: pacienteSeleccionado.value.fecha_nacimiento,
+      ultima_visita: pacienteSeleccionado.value.ultima_visita
     });
     
     const data = await response.json();
