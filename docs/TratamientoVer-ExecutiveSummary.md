@@ -7,7 +7,7 @@
 - **Módulo**: Ver Tratamientos y Observaciones
 - **Fecha de implementación**: 26 de julio de 2025
 - **Estado**: ✅ **COMPLETADO Y FUNCIONAL**
-- **Desarrollador Líder**: Andrés Núñez (GitHub Copilot AI Assistant)
+- **Desarrollador Líder**: Andrés Núñez
 
 ## 👥 Equipo NullDevs
 - **🚀 Andrés Núñez** - Programador Full Stack & Líder del Proyecto

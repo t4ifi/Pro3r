@@ -53,8 +53,8 @@ export default {
     };
   },
   mounted() {
-    if (localStorage.getItem('usuario')) {
-      this.usuarioGuardado = JSON.parse(localStorage.getItem('usuario'));
+    if (sessionStorage.getItem('usuario')) {
+      this.usuarioGuardado = JSON.parse(sessionStorage.getItem('usuario'));
       this.loggedIn = true;
     }
   },
@@ -67,26 +67,41 @@ export default {
         return;
       }
       this.cargando = true;
+
       try {
         const response = await axios.post('/api/login', {
           usuario: this.usuario,
           password: this.password
         });
-        localStorage.setItem('usuario', JSON.stringify(response.data));
-        this.usuarioGuardado = response.data;
-        this.success = response.data.message || 'Inicio de sesión exitoso.';
-        this.loggedIn = true;
+        
+        // Login exitoso
+        sessionStorage.setItem('usuario', JSON.stringify(response.data.data));
+        this.usuarioGuardado = response.data.data;
+        this.success = response.data.message || 'Inicio de sesión exitoso';
         this.cargando = false;
-        this.mostrandoLoader = true;
+        
+        // Mostrar mensaje de éxito por 1.5 segundos, luego spinner
         setTimeout(() => {
-          if (this.usuarioGuardado.rol === 'dentista') {
-            this.$router.push('/panel-dentista');
-          } else {
-            this.$router.push('/panel-recepcionista');
-          }
-        }, 700); // Espera 0.7 segundos antes de redirigir
+          this.success = ''; // Ocultar mensaje de éxito
+          this.cargando = true; // Mostrar spinner
+          setTimeout(() => {
+            this.loggedIn = true;
+            this.cargando = false;
+            this.mostrandoLoader = true;
+            setTimeout(() => {
+              if (this.usuarioGuardado.rol === 'dentista') {
+                this.$router.push('/panel-dentista');
+              } else {
+                this.$router.push('/panel-recepcionista');
+              }
+            }, 700);
+          }, 800); // Spinner por 0.8 segundos
+        }, 1500);
+        
       } catch (err) {
-        this.error = err.response?.data?.message || 'Error al iniciar sesión.';
+        // Error de credenciales o conexión
+        console.log('🔐 Incorrecto... Curioso');
+        this.error = err.response?.data?.message || 'Credenciales incorrectas.';
         this.cargando = false;
       }
     }

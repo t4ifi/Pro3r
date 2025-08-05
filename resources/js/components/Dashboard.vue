@@ -5,22 +5,22 @@
         <div class="avatar-circle">
           <i class='bx bx-user'></i>
         </div>
-        <div class="user-name">Bienvenido, {{ usuarioGuardado.nombre }}</div>
-        <div class="user-role">{{ usuarioGuardado.rol.charAt(0).toUpperCase() + usuarioGuardado.rol.slice(1) }}</div>
+        <div class="user-name">Bienvenido, {{ usuarioGuardado.nombre || 'Usuario' }}</div>
+        <div class="user-role">{{ usuarioGuardado.rol ? (usuarioGuardado.rol.charAt(0).toUpperCase() + usuarioGuardado.rol.slice(1)) : 'Rol' }}</div>
       </div>
       <nav>
         <!-- Citas -->
         <div class="sidebar-group">
           <div
             :class="['sidebar-link sidebar-link-group', activeGroup==='citas' ? 'active-menu' : '']"
-            @click="usuarioGuardado.rol==='dentista' ? $router.push('/citas/calendario') : toggleMenu('citas')"
+            @click="usuarioGuardado?.rol==='dentista' ? $router.push('/citas/calendario') : toggleMenu('citas')"
             style="cursor: pointer;"
           >
             <i class='bx bx-calendar'></i>
             <span class="sidebar-title">Citas</span>
-            <i v-if="usuarioGuardado.rol!=='dentista'" :class="['bx', openMenu==='citas' ? 'bx-chevron-up' : 'bx-chevron-down', 'chevron']"></i>
+            <i v-if="usuarioGuardado?.rol!=='dentista'" :class="['bx', openMenu==='citas' ? 'bx-chevron-up' : 'bx-chevron-down', 'chevron']"></i>
           </div>
-          <div v-if="openMenu==='citas' && usuarioGuardado.rol!=='dentista'" class="sidebar-submenu">
+          <div v-if="openMenu==='citas' && usuarioGuardado?.rol!=='dentista'" class="sidebar-submenu">
             <router-link :to="{ path: '/citas/calendario' }" class="sidebar-sublink" :class="$route.path === '/citas/calendario' ? 'active-sublink' : ''">
               <i class='bx bx-calendar-check'></i>
               <span>Ver Calendario y citas</span>
@@ -49,14 +49,14 @@
               <span>Editar Pacientes</span>
             </router-link>
             <!-- Crear Paciente - Solo para recepcionista -->
-            <router-link v-if="usuarioGuardado.rol==='recepcionista'" :to="{ path: '/citas/crear-paciente' }" class="sidebar-sublink" :class="$route.path === '/citas/crear-paciente' ? 'active-sublink' : ''">
+            <router-link v-if="usuarioGuardado?.rol==='recepcionista'" :to="{ path: '/citas/crear-paciente' }" class="sidebar-sublink" :class="$route.path === '/citas/crear-paciente' ? 'active-sublink' : ''">
               <i class='bx bx-user-plus'></i>
               <span>Registrar Paciente</span>
             </router-link>
           </div>
         </div>
         <!-- Tratamientos (solo dentista) -->
-        <div v-if="usuarioGuardado.rol==='dentista'" class="sidebar-group">
+        <div v-if="usuarioGuardado?.rol==='dentista'" class="sidebar-group">
           <div :class="['sidebar-link sidebar-link-group', activeGroup==='tratamientos' ? 'active-menu' : '']" @click="toggleMenu('tratamientos')">
             <i class='bx bx-clipboard'></i>
             <span class="sidebar-title">Tratamientos</span>
@@ -74,7 +74,7 @@
           </div>
         </div>
         <!-- Placas (solo dentista) -->
-        <div v-if="usuarioGuardado.rol==='dentista'" class="sidebar-group">
+        <div v-if="usuarioGuardado?.rol==='dentista'" class="sidebar-group">
           <div :class="['sidebar-link sidebar-link-group', activeGroup==='placas' ? 'active-menu' : '']" @click="toggleMenu('placas')">
             <i class='bx bx-image'></i>
             <span class="sidebar-title">Placas</span>
@@ -110,7 +110,7 @@
           </div>
         </div>
         <!-- Usuarios (solo dentista) -->
-        <div v-if="usuarioGuardado.rol==='dentista'" class="sidebar-group">
+        <div v-if="usuarioGuardado?.rol==='dentista'" class="sidebar-group">
           <div :class="['sidebar-link sidebar-link-group', activeGroup==='usuarios' ? 'active-menu' : '']" @click="toggleMenu('usuarios')">
             <i class='bx bx-user-circle'></i>
             <span class="sidebar-title">Usuarios</span>
@@ -132,7 +132,7 @@
           </div>
         </div>
         <!-- WhatsApp (solo recepcionista) -->
-        <div v-if="usuarioGuardado.rol==='recepcionista'" class="sidebar-group">
+        <div v-if="usuarioGuardado?.rol==='recepcionista'" class="sidebar-group">
           <div :class="['sidebar-link sidebar-link-group', activeGroup==='whatsapp' ? 'active-menu' : '']" @click="toggleMenu('whatsapp')">
             <i class='bx bxl-whatsapp text-green-500'></i>
             <span class="sidebar-title">WhatsApp</span>
@@ -194,7 +194,7 @@ export default {
       cargando: false,
       openMenu: null,
       moduloActivo: 'citas', // Por defecto, mostrar Citas
-      usuarioGuardado: JSON.parse(localStorage.getItem('usuario') || '{}')
+      usuarioGuardado: JSON.parse(sessionStorage.getItem('usuario') || '{}')
     };
   },
   mounted() {
@@ -256,7 +256,7 @@ export default {
     cerrarSesion() {
       this.cargando = true;
       setTimeout(() => {
-        localStorage.removeItem('usuario');
+        sessionStorage.removeItem('usuario');
         window.location.reload();
       }, 1000);
     },
@@ -282,7 +282,7 @@ export default {
       
       // Para Citas
       if (path.startsWith('/citas/calendario') || path.startsWith('/citas/agendar')) {
-        if (path === '/citas/calendario' && this.usuarioGuardado.rol === 'dentista') {
+        if (path === '/citas/calendario' && this.usuarioGuardado?.rol === 'dentista') {
           this.openMenu = null; // Dentista ve calendario directamente
         } else {
           this.openMenu = 'citas';

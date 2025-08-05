@@ -882,7 +882,7 @@ Al reportar incluir:
 
 ### �‍💻 **Desarrollo**
 - **Desarrollador Principal**: [@t4ifi](https://github.com/t4ifi)
-- **Depuración y Resolución de Errores**: GitHub Copilot
+- **Depuración y Resolución de Errores**: Andrés Nuñez
 - **Testing y Verificación**: Equipo de desarrollo
 - **Documentación Técnica**: Collaborative effort
 

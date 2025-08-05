@@ -172,4 +172,4 @@ El sistema puede ser desplegado en producción sin problemas adicionales. Toda l
 
 **🦷 DentalSYNC2 - PROYECTO COMPLETADO EXITOSAMENTE ✅**
 
-*Desarrollado y depurado por GitHub Copilot - 26 de julio de 2025*
+*Desarrollado y depurado por Andrés Nuñez - 26 de julio de 2025*

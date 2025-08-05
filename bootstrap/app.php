@@ -12,7 +12,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // Registrar middleware de autenticación API personalizado
+        $middleware->alias([
+            'auth.api' => \App\Http\Middleware\AuthenticateApiSimple::class,
+        ]);
+        
+        // No usar throttling automático, se manejará en rutas específicas
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

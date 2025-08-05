@@ -5,7 +5,7 @@
 **Proyecto**: Sistema Integral de Gestión de Pagos para Aplicación Dental  
 **Fecha de Finalización**: 26 de Julio de 2025  
 **Estado**: ✅ **COMPLETADO Y FUNCIONAL**  
-**Desarrollador**: Sistema Copilot  
+**Desarrollador**: Andrés Nuñez  
 
 ---
 
@@ -417,5 +417,5 @@
 
 *Reporte generado automáticamente al finalizar la implementación del Sistema de Gestión de Pagos*  
 *Fecha: 26 de Julio de 2025 - 22:00*  
-*Desarrollado por: Sistema Copilot*  
+*Desarrollado por: Andrés Nuñez*  
 *Versión: 2.0 - Con correcciones de autenticación y manejo de errores*

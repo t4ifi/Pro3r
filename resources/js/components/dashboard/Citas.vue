@@ -85,6 +85,7 @@ import { ref, computed, watch, onMounted } from 'vue';
 import VueCal from 'vue-cal';
 import 'vue-cal/dist/vuecal.css';
 import AgendarCita from './AgendarCita.vue';
+import axios from 'axios';
 
 const vistaActiva = ref('calendario');
 const fechaSeleccionada = ref(new Date());
@@ -101,9 +102,10 @@ async function fetchCitas(fecha = null) {
   let url = '/api/citas';
   if (fecha) url += `?fecha=${fecha}`;
   try {
-    const res = await fetch(url);
-    citas.value = await res.json();
+    const response = await axios.get(url);
+    citas.value = response.data.data || [];
   } catch (e) {
+    console.error('Error al cargar citas:', e);
     citas.value = [];
   } finally {
     loading.value = false;
@@ -147,21 +149,23 @@ const fechaTitulo = computed(() => {
   return fechaSeleccionada.value.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' });
 });
 
-const citasAnteriores = computed(() =>
-  citas.value.map(c => ({
+const citasAnteriores = computed(() => {
+  if (!Array.isArray(citas.value)) return [];
+  return citas.value.map(c => ({
     start: c.fecha,
     end: c.fecha,
     title: c.nombre_completo + ' - ' + c.motivo,
     content: c.motivo,
     class: c.estado === 'atendida' ? 'bg-green-200' : 'bg-yellow-200'
-  }))
-);
+  }));
+});
 
 function formatHora(fecha) {
   return new Date(fecha).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
 }
 
 function capitalize(str) {
+  if (!str || typeof str !== 'string') return '';
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
@@ -174,14 +178,10 @@ function estadoClase(estado) {
 async function marcarCitaAtendida(id) {
   loading.value = true;
   try {
-    await fetch(`/api/citas/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ estado: 'atendida' })
-    });
+    await axios.put(`/api/citas/${id}`, { estado: 'atendida' });
     await fetchCitas(formatoFecha(fechaSeleccionada.value));
   } catch (e) {
-    // Manejo de error opcional
+    console.error('Error al marcar cita como atendida:', e);
   } finally {
     loading.value = false;
   }
@@ -190,10 +190,10 @@ async function marcarCitaAtendida(id) {
 async function solicitarEliminarCita(id) {
   loading.value = true;
   try {
-    await fetch(`/api/citas/${id}`, { method: 'DELETE' });
+    await axios.delete(`/api/citas/${id}`);
     await fetchCitas(formatoFecha(fechaSeleccionada.value));
   } catch (e) {
-    // Manejo de error opcional
+    console.error('Error al eliminar cita:', e);
   } finally {
     loading.value = false;
   }
@@ -230,7 +230,7 @@ async function confirmarEliminar() {
   cerrarConfirmar();
 }
 
-const usuarioGuardado = JSON.parse(localStorage.getItem('usuario') || '{}');
+const usuarioGuardado = JSON.parse(sessionStorage.getItem('usuario') || '{}');
 
 function abrirModalAgendar() {
   vistaActiva.value = 'agendar';

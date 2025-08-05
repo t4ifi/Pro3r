@@ -72,4 +72,6 @@ class CuotaPago extends Model
     {
         return $this->estado === 'pendiente' && $this->fecha_vencimiento < now();
     }
+=======
+>>>>>>> b3b0dd18c2a0ff51155ecb1bd15e55fcb140a164
 }

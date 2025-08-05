@@ -283,6 +283,7 @@
 <script setup>
 import { ref, computed, onMounted, nextTick } from 'vue';
 import whatsAppManager from '../../services/WhatsAppManagerReal.js';
+import axios from 'axios';
 
 // Estados reactivos
 const conversaciones = ref([]);
@@ -363,9 +364,8 @@ const cargarConversaciones = async () => {
 const cargarPacientes = async () => {
   try {
     // Cargar desde API de pacientes
-    const response = await fetch('/api/pacientes');
-    const data = await response.json();
-    pacientes.value = data;
+    const response = await axios.get('/api/pacientes');
+    pacientes.value = response.data.data || response.data || [];
   } catch (error) {
     console.error('Error cargando pacientes:', error);
     // Fallback a datos simulados

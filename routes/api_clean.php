@@ -16,48 +16,10 @@ use App\Http\Controllers\Api\WhatsappPlantillaController;
 // ========================================
 Route::post('/login', [AuthController::class, 'login']);
 
-<<<<<<< HEAD
-// Rutas para placas dentales
-Route::get('/placas', [PlacaController::class, 'index']);
-Route::get('/placas/{id}', [PlacaController::class, 'show']);
-Route::post('/placas', [PlacaController::class, 'store']);
-Route::put('/placas/{id}', [PlacaController::class, 'update']);
-Route::delete('/placas/{id}', [PlacaController::class, 'destroy']);
-
-// Rutas para tratamientos
-Route::get('/tratamientos/pacientes', [TratamientoController::class, 'getPacientes']);
-Route::get('/tratamientos/paciente/{pacienteId}', [TratamientoController::class, 'getTratamientosPaciente']);
-Route::post('/tratamientos', [TratamientoController::class, 'store']);
-Route::post('/tratamientos/{id}/observacion', [TratamientoController::class, 'addObservacion']);
-Route::put('/tratamientos/{id}/finalizar', [TratamientoController::class, 'finalizar']);
-Route::get('/tratamientos/historial/{pacienteId}', [TratamientoController::class, 'getHistorialClinico']);
-
-// Rutas para sistema de pagos
-Route::prefix('pagos')->group(function () {
-    Route::post('/init-session', [PagoController::class, 'initSession']); // Para pruebas
-    Route::get('/pacientes', [PagoController::class, 'getPacientes']);
-    Route::get('/resumen', [PagoController::class, 'getResumenPagos']);
-    Route::post('/registrar', [PagoController::class, 'registrarPago']);
-    Route::get('/paciente/{pacienteId}', [PagoController::class, 'verPagosPaciente']);
-    Route::post('/cuota', [PagoController::class, 'registrarPagoCuota']);
-    Route::get('/cuotas/{pagoId}', [PagoController::class, 'getCuotasPago']); // Nueva ruta para obtener cuotas
-});
-
-// Rutas para WhatsApp
-Route::prefix('whatsapp')->group(function () {
-    // Conversaciones
-    Route::get('/conversaciones', [WhatsappConversacionController::class, 'index']);
-    Route::post('/conversaciones', [WhatsappConversacionController::class, 'crear']);
-    Route::get('/conversaciones/{conversacion}/mensajes', [WhatsappConversacionController::class, 'mensajes']);
-    Route::post('/conversaciones/{conversacion}/mensajes', [WhatsappConversacionController::class, 'enviarMensaje']);
-    Route::put('/conversaciones/{conversacion}/estado', [WhatsappConversacionController::class, 'actualizarEstado']);
-    Route::get('/conversaciones/estadisticas', [WhatsappConversacionController::class, 'estadisticas']);
-=======
 // ========================================
 // RUTAS PROTEGIDAS (Requieren autenticación)
 // ========================================
 Route::middleware(['auth.api'])->group(function () {
->>>>>>> b3b0dd18c2a0ff51155ecb1bd15e55fcb140a164
     
     // Rutas de autenticación
     Route::post('/logout', [AuthController::class, 'logout']);

@@ -4,7 +4,7 @@
 
 **Fecha de implementación**: 26 de Julio de 2025  
 **Versión**: 2.0.0 - Con Fallback de Autenticación  
-**Desarrollador**: Sistema Copilot  
+**Desarrollador**: Andrés Nuñez  
 **Estado**: ✅ **FUNCIONAL, ROBUSTO Y PROBADO**
 
 ---

@@ -337,7 +337,7 @@ chmod -R 755 storage/
 ## 📞 Soporte y Mantenimiento
 
 ### Contacto Técnico
-- **Desarrollador**: GitHub Copilot Assistant
+- **Desarrollador**: Andrés Nuñez
 - **Repositorio**: Pro3r
 - **Documentación**: `/docs/placas-dentales.md`
 

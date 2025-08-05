@@ -397,6 +397,7 @@
 <script>
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import axios from 'axios';
 
 export default {
   name: 'GestionPagos',
@@ -451,17 +452,15 @@ export default {
         this.cargando = true;
         
         // Cargar pacientes
-        const resPacientes = await fetch('/api/pagos/pacientes');
-        const dataPacientes = await resPacientes.json();
-        if (dataPacientes.success) {
-          this.pacientes = dataPacientes.pacientes;
+        const resPacientes = await axios.get('/api/pagos/pacientes');
+        if (resPacientes.data.success) {
+          this.pacientes = resPacientes.data.pacientes;
         }
         
         // Cargar resumen
-        const resResumen = await fetch('/api/pagos/resumen');
-        const dataResumen = await resResumen.json();
-        if (dataResumen.success) {
-          this.resumen = dataResumen.resumen;
+        const resResumen = await axios.get('/api/pagos/resumen');
+        if (resResumen.data.success) {
+          this.resumen = resResumen.data.resumen;
         }
         
       } catch (error) {
@@ -486,23 +485,14 @@ export default {
           monto_total: this.limpiarMonto(this.nuevoPago.monto_total)
         };
         
-        const response = await fetch('/api/pagos/registrar', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
-          body: JSON.stringify(datosLimpios)
-        });
+        const response = await axios.post('/api/pagos/registrar', datosLimpios);
         
-        const data = await response.json();
-        
-        if (data.success) {
+        if (response.data.success) {
           this.mostrarMensaje('Pago registrado exitosamente', 'exito');
           this.limpiarFormulario();
           this.cargarDatos(); // Actualizar resumen
         } else {
-          this.mostrarMensaje(data.message || 'Error al registrar pago', 'error');
+          this.mostrarMensaje(response.data.message || 'Error al registrar pago', 'error');
         }
         
       } catch (error) {
@@ -521,13 +511,12 @@ export default {
       try {
         this.cargando = true;
         
-        const response = await fetch(`/api/pagos/paciente/${this.pacienteSeleccionado}`);
-        const data = await response.json();
+        const response = await axios.get(`/api/pagos/paciente/${this.pacienteSeleccionado}`);
         
-        if (data.success) {
-          this.pagosPaciente = data;
+        if (response.data.success) {
+          this.pagosPaciente = response.data;
         } else {
-          this.mostrarMensaje(data.message || 'Error al cargar pagos', 'error');
+          this.mostrarMensaje(response.data.message || 'Error al cargar pagos', 'error');
         }
         
       } catch (error) {
@@ -545,12 +534,11 @@ export default {
       }
       
       try {
-        const response = await fetch(`/api/pagos/paciente/${this.pacienteCuota}`);
-        const data = await response.json();
+        const response = await axios.get(`/api/pagos/paciente/${this.pacienteCuota}`);
         
-        if (data.success) {
+        if (response.data.success) {
           // Filtrar solo pagos pendientes
-          this.pagosPendientes = data.pagos
+          this.pagosPendientes = response.data.pagos
             .filter(pago => pago.estado_pago !== 'pagado_completo')
             .map(pago => ({
               ...pago,
@@ -629,29 +617,20 @@ export default {
         
         this.cargando = true;
         
-        const response = await fetch('/api/pagos/cuota', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
-          body: JSON.stringify({
-            pago_id: pago.id,
-            monto_cuota: this.limpiarMonto(pago.monto_cuota),
-            fecha_pago: pago.fecha_cuota,
-            descripcion: pago.descripcion_cuota,
-            numero_cuota: pago.numero_cuota
-          })
+        const response = await axios.post('/api/pagos/cuota', {
+          pago_id: pago.id,
+          monto_cuota: this.limpiarMonto(pago.monto_cuota),
+          fecha_pago: pago.fecha_cuota,
+          descripcion: pago.descripcion_cuota,
+          numero_cuota: pago.numero_cuota
         });
         
-        const data = await response.json();
-        
-        if (data.success) {
+        if (response.data.success) {
           this.mostrarMensaje('Pago de cuota registrado exitosamente', 'exito');
           this.cargarPagosPendientes(); // Recargar lista
           this.cargarDatos(); // Actualizar resumen
         } else {
-          this.mostrarMensaje(data.message || 'Error al registrar cuota', 'error');
+          this.mostrarMensaje(response.data.message || 'Error al registrar cuota', 'error');
         }
         
       } catch (error) {
@@ -1042,11 +1021,10 @@ export default {
     // Obtener información del usuario actual
     async obtenerUsuarioActual() {
       try {
-        const response = await fetch('/api/user');
-        const data = await response.json();
+        const response = await axios.get('/api/user');
         return {
-          nombre: data.user?.name || 'Usuario no identificado',
-          email: data.user?.email || 'email@noidentificado.com'
+          nombre: response.data.user?.name || 'Usuario no identificado',
+          email: response.data.user?.email || 'email@noidentificado.com'
         };
       } catch (error) {
         return {
