@@ -417,6 +417,40 @@ class PagoController extends Controller
     }
 
     /**
+     * Obtener información detallada de cuotas de un pago específico
+     */
+    public function getCuotasPago($pagoId)
+    {
+        try {
+            $pago = Pago::findOrFail($pagoId);
+            
+            if ($pago->modalidad_pago !== 'cuotas_fijas') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Este pago no tiene cuotas fijas'
+                ], 400);
+            }
+            
+            $cuotas = DB::table('cuotas_pago')
+                ->where('pago_id', $pagoId)
+                ->orderBy('numero_cuota')
+                ->get();
+                
+            return response()->json([
+                'success' => true,
+                'pago' => $pago,
+                'cuotas' => $cuotas
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener cuotas: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Inicializar sesión de prueba (temporal)
      */
     public function initSession()

@@ -335,12 +335,31 @@
 
                 <div v-if="pago.modalidad_pago === 'cuotas_fijas'" class="form-group">
                   <label>🔢 Número de Cuota</label>
-                  <select v-model="pago.numero_cuota">
-                    <option value="">Cuota...</option>
-                    <option v-for="n in pago.total_cuotas" :key="n" :value="n">
+                  <select v-model="pago.numero_cuota" @change="onCuotaSeleccionada(pago)">
+                    <option value="">Seleccionar cuota...</option>
+                    <option 
+                      v-for="n in pago.total_cuotas" 
+                      :key="n" 
+                      :value="n"
+                      :disabled="cuotasDetalle[pago.id] && cuotasDetalle[pago.id].find(c => c.numero_cuota == n && c.estado === 'pagada')"
+                    >
                       Cuota {{ n }}
+                      <span v-if="cuotasDetalle[pago.id]">
+                        {{ (() => {
+                          const cuota = cuotasDetalle[pago.id].find(c => c.numero_cuota == n);
+                          return cuota ? (cuota.estado === 'pagada' ? ' (Pagada)' : ` - $${formatearMonto(cuota.monto)}`) : '';
+                        })() }}
+                      </span>
                     </option>
                   </select>
+                  
+                  <!-- Información de la cuota seleccionada -->
+                  <div v-if="pago.numero_cuota && cuotasDetalle[pago.id]" class="cuota-info-detalle">
+                    {{ (() => {
+                      const cuotaInfo = cuotasDetalle[pago.id].find(c => c.numero_cuota == pago.numero_cuota);
+                      return cuotaInfo ? `💡 Cuota ${pago.numero_cuota}: $${formatearMonto(cuotaInfo.monto)} - Vence: ${formatearFecha(cuotaInfo.fecha_vencimiento)}` : '';
+                    })() }}
+                  </div>
                 </div>
               </div>
 
@@ -408,7 +427,8 @@ export default {
       
       // Registrar cuota
       pacienteCuota: '',
-      pagosPendientes: []
+      pagosPendientes: [],
+      cuotasDetalle: {} // Almacena información detallada de cuotas por pago_id
     }
   },
   
@@ -520,6 +540,7 @@ export default {
     async cargarPagosPendientes() {
       if (!this.pacienteCuota) {
         this.pagosPendientes = [];
+        this.cuotasDetalle = {};
         return;
       }
       
@@ -538,6 +559,13 @@ export default {
               numero_cuota: '',
               descripcion_cuota: ''
             }));
+            
+          // Cargar información detallada de cuotas para pagos con cuotas fijas
+          for (let pago of this.pagosPendientes) {
+            if (pago.modalidad_pago === 'cuotas_fijas') {
+              await this.cargarCuotasPago(pago.id);
+            }
+          }
         }
         
       } catch (error) {
@@ -545,6 +573,44 @@ export default {
       }
     },
     
+    // Cargar información detallada de cuotas de un pago
+    async cargarCuotasPago(pagoId) {
+      try {
+        const response = await fetch(`/api/pagos/cuotas/${pagoId}`);
+        const data = await response.json();
+        
+        if (data.success) {
+          // Almacenar información de cuotas indexada por pago_id
+          this.cuotasDetalle[pagoId] = data.cuotas;
+        }
+      } catch (error) {
+        console.error('Error al cargar cuotas:', error);
+      }
+    },
+    
+    // Manejar cambio de cuota seleccionada para autocompletar el monto
+    onCuotaSeleccionada(pago) {
+      if (pago.modalidad_pago === 'cuotas_fijas' && pago.numero_cuota && this.cuotasDetalle[pago.id]) {
+        // Buscar la cuota específica
+        const cuotaSeleccionada = this.cuotasDetalle[pago.id].find(
+          cuota => cuota.numero_cuota == pago.numero_cuota && cuota.estado === 'pendiente'
+        );
+        
+        if (cuotaSeleccionada) {
+          // Autocompletar el monto correspondiente a esa cuota SIN formatear
+          // para evitar problemas con los decimales
+          pago.monto_cuota = parseFloat(cuotaSeleccionada.monto).toString();
+          
+          // Opcional: Actualizar la descripción
+          pago.descripcion_cuota = `Cuota ${pago.numero_cuota} de ${pago.total_cuotas}`;
+        } else {
+          // Si la cuota ya está pagada o no existe, limpiar el monto
+          pago.monto_cuota = '';
+          this.mostrarMensaje(`La cuota ${pago.numero_cuota} ya está pagada o no existe`, 'error');
+        }
+      }
+    },
+
     async registrarCuota(pago) {
       try {
         // Validación del lado del cliente
@@ -618,9 +684,11 @@ export default {
         return;
       }
       
+      // Convertir a número para validaciones
+      const montoNumerico = parseInt(valor);
+      
       // Validar límite para pagos de cuotas
       if (objeto && campo === 'monto_cuota' && objeto.saldo_restante) {
-        const montoNumerico = parseInt(valor);
         const saldoMaximo = parseFloat(objeto.saldo_restante);
         
         if (montoNumerico > saldoMaximo) {
@@ -629,8 +697,15 @@ export default {
         }
       }
       
-      // Formatear con separadores de miles
-      const numeroFormateado = this.formatearMontoInput(parseInt(valor));
+      // Para montos de cuota, mantener formato simple sin separadores excesivos
+      let numeroFormateado;
+      if (objeto && campo === 'monto_cuota') {
+        // Para cuotas, usar formato simple
+        numeroFormateado = parseInt(valor).toString();
+      } else {
+        // Para otros campos, usar formato con separadores
+        numeroFormateado = this.formatearMontoInput(parseInt(valor));
+      }
       
       // Actualizar el valor
       if (objeto) {
@@ -1576,5 +1651,29 @@ export default {
 .btn-login:disabled {
   background: #6c757d;
   cursor: not-allowed;
+}
+
+/* Estilos para información de cuotas */
+.cuota-info-detalle {
+  margin-top: 8px;
+  padding: 10px;
+  background: #e8f4fd;
+  border: 1px solid #b3d8f2;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  color: #1565c0;
+}
+
+select option:disabled {
+  color: #999;
+  background-color: #f5f5f5;
+}
+
+.form-group select {
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'%3e%3cpath fill='%23666' d='m2 0-2 2h4zm0 5 2-2h-4z'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 12px;
+  appearance: none;
 }
 </style>

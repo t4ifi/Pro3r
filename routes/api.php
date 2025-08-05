@@ -45,6 +45,7 @@ Route::prefix('pagos')->group(function () {
     Route::post('/registrar', [PagoController::class, 'registrarPago']);
     Route::get('/paciente/{pacienteId}', [PagoController::class, 'verPagosPaciente']);
     Route::post('/cuota', [PagoController::class, 'registrarPagoCuota']);
+    Route::get('/cuotas/{pagoId}', [PagoController::class, 'getCuotasPago']); // Nueva ruta para obtener cuotas
 });
 
 // Rutas para WhatsApp
