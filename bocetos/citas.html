@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DentalSync - Gestión de Citas</title>
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(90deg, #f6f6f6 60%, #f3eaff 100%);
+            overflow: hidden;
+        }
+        .contenedor-panel {
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 270px;
+            background: #fff;
+            border-right: 1px solid #ececec;
+            box-shadow: 2px 0 12px rgba(162,89,255,0.07);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+        .info-usuario {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 32px 0 16px 0;
+        }
+        .avatar-circle {
+            width: 90px;
+            height: 90px;
+            background: #fff;
+            border: 2.5px solid #ece7fa;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 8px rgba(162,89,255,0.04);
+            color: #a259ff;
+        }
+        .nombre-usuario {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #3a3a3a;
+            margin-bottom: 2px;
+        }
+        .rol-usuario {
+            font-size: 1rem;
+            color: #a259ff;
+            margin-bottom: 8px;
+        }
+        .grupo-barra-lateral {
+            margin-bottom: 18px;
+        }
+        .grupo-enlace-barra {
+            font-size: 1.2rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 18px 24px 8px 24px;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: background 0.2s, border 0.2s;
+            border-left: 4px solid transparent;
+            background: #fff;
+            color: #3a3a3a;
+        }
+        .grupo-enlace-barra.active-menu {
+            background: #fff;
+            color: #a259ff;
+            border-left: 4px solid #a259ff;
+            box-shadow: 0 2px 8px rgba(162,89,255,0.08);
+        }
+        .grupo-enlace-barra:hover {
+            background: #f8f6ff;
+            color: #a259ff;
+        }
+        .titulo-barra {
+            flex: 1;
+        }
+        .chevron {
+            transition: transform 0.3s;
+        }
+        .chevron.rotated {
+            transform: rotate(180deg);
+        }
+        .submenu-barra {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        .submenu-barra.open {
+            max-height: 500px;
+        }
+        .subenlace-barra {
+            font-size: 1.08rem;
+            padding: 12px 32px;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            transition: background 0.2s, color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #3a3a3a;
+            text-decoration: none;
+            background: #fff;
+            cursor: pointer;
+        }
+        .subenlace-barra.active-sublink, .subenlace-barra:hover {
+            background: #ece7fa;
+            color: #a259ff;
+        }
+        .subenlace-barra i {
+            color: #a259ff;
+            font-size: 1.1rem;
+            width: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .grupo-enlace-barra i {
+            color: #a259ff;
+        }
+        .boton-salir {
+            position: absolute;
+            bottom: 5px;
+            left: 0;
+            width: 270px;
+            background: #ffeded;
+            color: #d32f2f;
+            font-weight: bold;
+            border-radius: 8px;
+            padding: 12px 0;
+            box-shadow: 0 2px 8px rgba(211,47,47,0.08);
+            cursor: pointer;
+            transition: box-shadow 0.2s;
+            z-index: 10;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .boton-salir:hover {
+            box-shadow: 0 4px 16px rgba(211,47,47,0.18);
+        }
+        .panel-principal {
+            flex: 1;
+            background: #f6f6f6;
+            padding: 24px;
+            overflow-y: auto;
+            max-height: 100vh;
+        }
+        .main-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            background: #fff;
+            padding: 20px 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(162,89,255,0.08);
+        }
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .logo-section img {
+            height: 40px;
+            width: auto;
+        }
+        .logo-text {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #a259ff;
+        }
+        .titulo-pagina {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #3a3a3a;
+            margin-bottom: 8px;
+        }
+        .subtitulo-pagina {
+            color: #666;
+            font-size: 1rem;
+            margin-bottom: 24px;
+        }
+        .calendar-container {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        .calendar-main {
+            background: #fff;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(162,89,255,0.08);
+        }
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .calendar-nav {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .nav-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 8px;
+            background: #f8f6ff;
+            color: #a259ff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        .nav-btn:hover {
+            background: #a259ff;
+            color: white;
+        }
+        .calendar-month {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #3a3a3a;
+        }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+        .calendar-day-header {
+            text-align: center;
+            padding: 12px 8px;
+            font-weight: 600;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            font-weight: 600;
+        }
+        .calendar-day:hover {
+            background: #f8f6ff;
+        }
+        .calendar-day.today {
+            background: #a259ff;
+            color: white;
+        }
+        .calendar-day.other-month {
+            color: #ccc;
+        }
+        .calendar-day.has-appointments {
+            background: #e8f5e8;
+            color: #388e3c;
+        }
+        .calendar-day.has-appointments::after {
+            content: '';
+            position: absolute;
+            bottom: 4px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 6px;
+            height: 6px;
+            background: #388e3c;
+            border-radius: 50%;
+        }
+        .appointments-sidebar {
+            background: #fff;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(162,89,255,0.08);
+        }
+        .titulo-barra-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .titulo-barra-section h3 {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #3a3a3a;
+        }
+        .boton-primario {
+            background: linear-gradient(135deg, #a259ff 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.9rem;
+        }
+        .boton-primario:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(162,89,255,0.3);
+        }
+        .appointment-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .appointment-item:last-child {
+            border-bottom: none;
+        }
+        .appointment-time {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #f8f6ff;
+            padding: 8px;
+            border-radius: 8px;
+            min-width: 60px;
+        }
+        .appointment-time .time {
+            font-weight: bold;
+            color: #a259ff;
+            font-size: 0.9rem;
+        }
+        .appointment-time .duration {
+            font-size: 0.75rem;
+            color: #666;
+        }
+        .appointment-details {
+            flex: 1;
+        }
+        .appointment-details h4 {
+            font-weight: 600;
+            color: #3a3a3a;
+            margin-bottom: 4px;
+        }
+        .appointment-details p {
+            color: #666;
+            font-size: 0.85rem;
+        }
+        .appointment-status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .status-confirmed {
+            background: #e8f5e8;
+            color: #388e3c;
+        }
+        .status-pending {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+        .status-cancelled {
+            background: #ffebee;
+            color: #d32f2f;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+        .stat-card {
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(162,89,255,0.08);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: transform 0.2s;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        .stat-icon.blue { background: #e3f2fd; color: #1976d2; }
+        .stat-icon.green { background: #e8f5e8; color: #388e3c; }
+        .stat-icon.orange { background: #fff3e0; color: #f57c00; }
+        .stat-icon.purple { background: #f3e5f5; color: #a259ff; }
+        .stat-content h4 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #3a3a3a;
+            margin-bottom: 4px;
+        }
+        .stat-content p {
+            color: #666;
+            font-size: 0.85rem;
+        }
+        .quick-actions {
+            background: #fff;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(162,89,255,0.08);
+            margin-bottom: 24px;
+        }
+        .quick-actions h3 {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #3a3a3a;
+            margin-bottom: 16px;
+        }
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 12px;
+        }
+        .action-btn {
+            background: #f8f6ff;
+            color: #a259ff;
+            border: 2px solid #ece7fa;
+            padding: 16px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .action-btn:hover {
+            background: #a259ff;
+            color: white;
+        }
+        .action-btn i {
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="contenedor-panel">
+        <aside class="sidebar">
+            <div class="info-usuario">
+                <div class="avatar-circle">
+                    <i class='bx bx-user'></i>
+                </div>
+                <div class="nombre-usuario">Bienvenido, Dr. García</div>
+                <div class="rol-usuario">Dentista</div>
+            </div>
+            
+            <nav>
+                <div class="grupo-barra-lateral">
+                    <div class="grupo-enlace-barra active-menu" onclick="toggleMenu('citas')">
+                        <i class='bx bx-calendar'></i>
+                        <span class="titulo-barra">Citas</span>
+                        <i class='bx bx-chevron-down chevron'></i>
+                    </div>
+                    <div class="submenu-barra open" id="citas-menu">
+                        <div class="subenlace-barra active-sublink">
+                            <i class='bx bx-calendar-check'></i>
+                            <span>Ver Calendario y citas</span>
+                        </div>
+                        <div class="subenlace-barra">
+                            <i class='bx bx-calendar-plus'></i>
+                            <span>Agendar Nueva Cita</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grupo-barra-lateral">
+                    <div class="grupo-enlace-barra" onclick="toggleMenu('pacientes')">
+                        <i class='bx bx-user'></i>
+                        <span class="titulo-barra">Pacientes</span>
+                        <i class='bx bx-chevron-down chevron'></i>
+                    </div>
+                    <div class="submenu-barra" id="pacientes-menu">
+                        <div class="subenlace-barra" onclick="navigateTo('pacientes.html')">
+                            <i class='bx bx-group'></i>
+                            <span>Ver Pacientes</span>
+                        </div>
+                        <div class="subenlace-barra" onclick="navigateTo('pacientes.html')">
+                            <i class='bx bx-edit-alt'></i>
+                            <span>Editar Pacientes</span>
+                        </div>
+                        <div class="subenlace-barra" onclick="navigateTo('pacientes.html')">
+                            <i class='bx bx-user-plus'></i>
+                            <span>Registrar Paciente</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grupo-barra-lateral">
+                    <div class="grupo-enlace-barra" onclick="toggleMenu('tratamientos')">
+                        <i class='bx bx-clipboard'></i>
+                        <span class="titulo-barra">Tratamientos</span>
+                        <i class='bx bx-chevron-down chevron'></i>
+                    </div>
+                    <div class="submenu-barra" id="tratamientos-menu">
+                        <div class="subenlace-barra" onclick="navigateTo('tratamientos.html')">
+                            <i class='bx bx-plus-medical'></i>
+                            <span>Registrar Tratamiento</span>
+                        </div>
+                        <div class="subenlace-barra" onclick="navigateTo('tratamientos.html')">
+                            <i class='bx bx-list-ul'></i>
+                            <span>Ver Tratamientos</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grupo-barra-lateral">
+                    <div class="grupo-enlace-barra" onclick="toggleMenu('placas')">
+                        <i class='bx bx-image'></i>
+                        <span class="titulo-barra">Placas</span>
+                        <i class='bx bx-chevron-down chevron'></i>
+                    </div>
+                    <div class="submenu-barra" id="placas-menu">
+                        <div class="subenlace-barra">
+                            <i class='bx bx-cloud-upload'></i>
+                            <span>Subir Placa</span>
+                        </div>
+                        <div class="subenlace-barra">
+                            <i class='bx bx-show'></i>
+                            <span>Ver Placas</span>
+                        </div>
+                        <div class="subenlace-barra">
+                            <i class='bx bx-trash-alt'></i>
+                            <span>Eliminar Placa</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grupo-barra-lateral">
+                    <div class="grupo-enlace-barra" onclick="toggleMenu('pagos')">
+                        <i class='bx bx-dollar-circle'></i>
+                        <span class="titulo-barra">Pagos</span>
+                        <i class='bx bx-chevron-down chevron'></i>
+                    </div>
+                    <div class="submenu-barra" id="pagos-menu">
+                        <div class="subenlace-barra" onclick="navigateTo('pagos.html')">
+                            <i class='bx bx-cog'></i>
+                            <span>Gestión de Pagos</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grupo-barra-lateral">
+                    <div class="grupo-enlace-barra" onclick="toggleMenu('usuarios')">
+                        <i class='bx bx-user-circle'></i>
+                        <span class="titulo-barra">Usuarios</span>
+                        <i class='bx bx-chevron-down chevron'></i>
+                    </div>
+                    <div class="submenu-barra" id="usuarios-menu">
+                        <div class="subenlace-barra">
+                            <i class='bx bx-group'></i>
+                            <span>Ver Usuarios</span>
+                        </div>
+                        <div class="subenlace-barra">
+                            <i class='bx bx-edit'></i>
+                            <span>Editar Usuarios</span>
+                        </div>
+                        <div class="subenlace-barra">
+                            <i class='bx bx-user-plus'></i>
+                            <span>Crear Usuarios</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grupo-barra-lateral">
+                    <div class="grupo-enlace-barra" onclick="toggleMenu('whatsapp')">
+                        <i class='bx bxl-whatsapp' style="color: #25d366;"></i>
+                        <span class="titulo-barra">WhatsApp</span>
+                        <i class='bx bx-chevron-down chevron'></i>
+                    </div>
+                    <div class="submenu-barra" id="whatsapp-menu">
+                        <div class="subenlace-barra" onclick="navigateTo('whatsapp.html')">
+                            <i class='bx bx-chat'></i>
+                            <span>Conversaciones</span>
+                        </div>
+                        <div class="subenlace-barra" onclick="navigateTo('whatsapp.html')">
+                            <i class='bx bx-send'></i>
+                            <span>Enviar Mensaje</span>
+                        </div>
+                        <div class="subenlace-barra" onclick="navigateTo('whatsapp.html')">
+                            <i class='bx bx-message-square-detail'></i>
+                            <span>Plantillas</span>
+                        </div>
+                        <div class="subenlace-barra" onclick="navigateTo('whatsapp.html')">
+                            <i class='bx bx-time'></i>
+                            <span>Mensajes Automáticos</span>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <button class="boton-salir" onclick="navigateTo('login.html')">
+                <i class='bx bx-door-open'></i>
+                <span>Cerrar Sesión</span>
+            </button>
+        </aside>
+
+        <main class="panel-principal">
+            <div class="main-header">
+                <div class="logo-section">
+                    <img src="./LogoApp-Photoroom.png" alt="DentalSync Logo">
+                    <span class="logo-text">DentalSync</span>
+                </div>
+                <div style="font-size: 1.1rem; color: #666;">
+                    <i class='bx bx-calendar'></i>
+                    <span>Gestión de Citas</span>
+                </div>
+            </div>
+
+            <div class="titulo-pagina">Calendario de Citas</div>
+            <div class="subtitulo-pagina">Gestiona y programa las citas de tus pacientes</div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon blue">
+                        <i class='bx bx-calendar'></i>
+                    </div>
+                    <div class="stat-content">
+                        <h4>12</h4>
+                        <p>Citas Hoy</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon green">
+                        <i class='bx bx-check-circle'></i>
+                    </div>
+                    <div class="stat-content">
+                        <h4>8</h4>
+                        <p>Confirmadas</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon orange">
+                        <i class='bx bx-time'></i>
+                    </div>
+                    <div class="stat-content">
+                        <h4>3</h4>
+                        <p>Pendientes</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon purple">
+                        <i class='bx bx-calendar-week'></i>
+                    </div>
+                    <div class="stat-content">
+                        <h4>47</h4>
+                        <p>Esta Semana</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="quick-actions">
+                <h3>Acciones Rápidas</h3>
+                <div class="action-buttons">
+                    <button class="action-btn">
+                        <i class='bx bx-calendar-plus'></i>
+                        <span>Agendar Nueva Cita</span>
+                    </button>
+                    <button class="action-btn">
+                        <i class='bx bx-search'></i>
+                        <span>Buscar Paciente</span>
+                    </button>
+                    <button class="action-btn">
+                        <i class='bx bx-list-ul'></i>
+                        <span>Lista de Citas</span>
+                    </button>
+                    <button class="action-btn">
+                        <i class='bx bx-bell'></i>
+                        <span>Recordatorios</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="calendar-container">
+                <div class="calendar-main">
+                    <div class="calendar-header">
+                        <div class="calendar-month">Agosto 2025</div>
+                        <div class="calendar-nav">
+                            <button class="nav-btn">
+                                <i class='bx bx-chevron-left'></i>
+                            </button>
+                            <button class="nav-btn">
+                                <i class='bx bx-chevron-right'></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="calendar-grid">
+                        <div class="calendar-day-header">Lun</div>
+                        <div class="calendar-day-header">Mar</div>
+                        <div class="calendar-day-header">Mié</div>
+                        <div class="calendar-day-header">Jue</div>
+                        <div class="calendar-day-header">Vie</div>
+                        <div class="calendar-day-header">Sáb</div>
+                        <div class="calendar-day-header">Dom</div>
+
+                        <div class="calendar-day other-month">29</div>
+                        <div class="calendar-day other-month">30</div>
+                        <div class="calendar-day other-month">31</div>
+                        <div class="calendar-day">1</div>
+                        <div class="calendar-day">2</div>
+                        <div class="calendar-day">3</div>
+                        <div class="calendar-day today">4</div>
+                        <div class="calendar-day has-appointments">5</div>
+                        <div class="calendar-day has-appointments">6</div>
+                        <div class="calendar-day">7</div>
+                        <div class="calendar-day has-appointments">8</div>
+                        <div class="calendar-day">9</div>
+                        <div class="calendar-day">10</div>
+                        <div class="calendar-day">11</div>
+                        <div class="calendar-day has-appointments">12</div>
+                        <div class="calendar-day">13</div>
+                        <div class="calendar-day">14</div>
+                        <div class="calendar-day has-appointments">15</div>
+                        <div class="calendar-day">16</div>
+                        <div class="calendar-day">17</div>
+                        <div class="calendar-day">18</div>
+                        <div class="calendar-day has-appointments">19</div>
+                        <div class="calendar-day">20</div>
+                        <div class="calendar-day">21</div>
+                        <div class="calendar-day has-appointments">22</div>
+                        <div class="calendar-day">23</div>
+                        <div class="calendar-day">24</div>
+                        <div class="calendar-day">25</div>
+                        <div class="calendar-day has-appointments">26</div>
+                        <div class="calendar-day">27</div>
+                        <div class="calendar-day">28</div>
+                        <div class="calendar-day">29</div>
+                        <div class="calendar-day">30</div>
+                        <div class="calendar-day">31</div>
+                        <div class="calendar-day other-month">1</div>
+                    </div>
+                </div>
+
+                <div class="appointments-sidebar">
+                    <div class="titulo-barra-section">
+                        <h3>Citas de Hoy</h3>
+                        <button class="boton-primario">
+                            <i class='bx bx-plus'></i>
+                            Nueva
+                        </button>
+                    </div>
+
+                    <div class="appointment-item">
+                        <div class="appointment-time">
+                            <div class="time">09:00</div>
+                            <div class="duration">30min</div>
+                        </div>
+                        <div class="appointment-details">
+                            <h4>Ana García</h4>
+                            <p>Limpieza dental</p>
+                        </div>
+                        <div class="appointment-status status-confirmed">
+                            Confirmada
+                        </div>
+                    </div>
+
+                    <div class="appointment-item">
+                        <div class="appointment-time">
+                            <div class="time">10:30</div>
+                            <div class="duration">45min</div>
+                        </div>
+                        <div class="appointment-details">
+                            <h4>Carlos López</h4>
+                            <p>Revisión ortodoncia</p>
+                        </div>
+                        <div class="appointment-status status-confirmed">
+                            Confirmada
+                        </div>
+                    </div>
+
+                    <div class="appointment-item">
+                        <div class="appointment-time">
+                            <div class="time">12:00</div>
+                            <div class="duration">60min</div>
+                        </div>
+                        <div class="appointment-details">
+                            <h4>María Rodríguez</h4>
+                            <p>Endodoncia</p>
+                        </div>
+                        <div class="appointment-status status-pending">
+                            Pendiente
+                        </div>
+                    </div>
+
+                    <div class="appointment-item">
+                        <div class="appointment-time">
+                            <div class="time">14:00</div>
+                            <div class="duration">30min</div>
+                        </div>
+                        <div class="appointment-details">
+                            <h4>Pedro Sánchez</h4>
+                            <p>Consulta</p>
+                        </div>
+                        <div class="appointment-status status-confirmed">
+                            Confirmada
+                        </div>
+                    </div>
+
+                    <div class="appointment-item">
+                        <div class="appointment-time">
+                            <div class="time">15:30</div>
+                            <div class="duration">45min</div>
+                        </div>
+                        <div class="appointment-details">
+                            <h4>Elena Martín</h4>
+                            <p>Blanqueamiento</p>
+                        </div>
+                        <div class="appointment-status status-pending">
+                            Pendiente
+                        </div>
+                    </div>
+
+                    <div class="appointment-item">
+                        <div class="appointment-time">
+                            <div class="time">17:00</div>
+                            <div class="duration">30min</div>
+                        </div>
+                        <div class="appointment-details">
+                            <h4>Luis Fernández</h4>
+                            <p>Revisión</p>
+                        </div>
+                        <div class="appointment-status status-confirmed">
+                            Confirmada
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function toggleMenu(menuId) {
+            const menu = document.getElementById(menuId + '-menu');
+            const chevron = event.target.closest('.grupo-enlace-barra').querySelector('.chevron');
+            
+            // Close all other menus
+            document.querySelectorAll('.submenu-barra').forEach(submenu => {
+                if (submenu.id !== menuId + '-menu') {
+                    submenu.classList.remove('open');
+                }
+            });
+            
+            // Reset all chevrons
+            document.querySelectorAll('.chevron').forEach(chev => {
+                if (chev !== chevron) {
+                    chev.classList.remove('rotated');
+                }
+            });
+            
+            // Toggle current menu
+            menu.classList.toggle('open');
+            chevron.classList.toggle('rotated');
+        }
+
+        function navigateTo(page) {
+            window.location.href = page;
+        }
+
+        // Calendar interactions
+        document.querySelectorAll('.calendar-day').forEach(day => {
+            day.addEventListener('click', function() {
+                // Remove previous selection
+                document.querySelectorAll('.calendar-day').forEach(d => d.classList.remove('selected'));
+                // Add selection to clicked day
+                this.classList.add('selected');
+                
+                // Update appointments sidebar based on selected day
+                if (this.classList.contains('has-appointments')) {
+                    // Show appointments for this day
+                    console.log('Showing appointments for day:', this.textContent);
+                }
+            });
+        });
+
+        // Navigation buttons
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const isNext = this.querySelector('.bx-chevron-right');
+                const monthElement = document.querySelector('.calendar-month');
+                
+                // Simple month navigation simulation
+                if (isNext) {
+                    console.log('Next month');
+                } else {
+                    console.log('Previous month');
+                }
+            });
+        });
+
+        // Quick action buttons
+        document.querySelectorAll('.action-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const action = this.querySelector('span').textContent;
+                alert(`Acción: ${action}`);
+            });
+        });
+
+        // Appointment status interactions
+        document.querySelectorAll('.appointment-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const patient = this.querySelector('h4').textContent;
+                const treatment = this.querySelector('p').textContent;
+                alert(`Cita de ${patient} - ${treatment}`);
+            });
+        });
+    </script>
+</body>
+</html>

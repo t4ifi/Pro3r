@@ -1,0 +1,54 @@
+@startuml Dependencias-Modulos-DentalSync
+
+title Sistema DentalSync - Dependencias entre Módulos
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+Container_Boundary(dental_system, "Sistema DentalSync") {
+  
+  Component(auth, "Módulo de\nAutenticación", "UC-01", "Gestiona el acceso al sistema")
+  Component(dashboard, "Dashboard y\nReportes", "UC-09", "Visualización de información")
+  Component(pacientes, "Gestión de\nPacientes", "UC-03, UC-07", "Administra información de pacientes")
+  Component(citas, "Gestión de\nCitas", "UC-02", "Programación y control de citas")
+  Component(tratamientos, "Gestión de\nTratamientos", "UC-04", "Planes y procedimientos")
+  Component(pagos, "Gestión de\nPagos", "UC-05", "Facturación y cobranza")
+  Component(usuarios, "Gestión de\nUsuarios", "UC-06", "Administración de usuarios")
+  Component(whatsapp, "Comunicación\nWhatsApp", "UC-08", "Mensajería y notificaciones")
+  Component(historial, "Historial\nClínico", "UC-10", "Registros médicos")
+}
+
+' Dependencias principales
+Rel(auth, dashboard, "Autentica")
+Rel(auth, pacientes, "Autentica")
+Rel(auth, citas, "Autentica")
+Rel(auth, tratamientos, "Autentica")
+Rel(auth, pagos, "Autentica")
+Rel(auth, usuarios, "Autentica")
+Rel(auth, whatsapp, "Autentica")
+Rel(auth, historial, "Autentica")
+
+' Dependencias funcionales
+Rel(citas, pacientes, "Consulta", "Busca pacientes")
+Rel(tratamientos, pacientes, "Consulta", "Asigna tratamientos")
+Rel(pagos, pacientes, "Consulta", "Factura servicios")
+Rel(whatsapp, pacientes, "Consulta", "Envía mensajes")
+Rel(historial, pacientes, "Consulta", "Registra información")
+
+Rel(dashboard, citas, "Consulta", "Estadísticas de citas")
+Rel(dashboard, pacientes, "Consulta", "Estadísticas de pacientes")
+Rel(dashboard, pagos, "Consulta", "Reportes financieros")
+Rel(dashboard, tratamientos, "Consulta", "Reportes clínicos")
+
+Rel(pagos, tratamientos, "Consulta", "Factura tratamientos")
+Rel(historial, tratamientos, "Consulta", "Documenta procedimientos")
+
+' Módulo central
+Rel(pacientes, dashboard, "Alimenta", "Datos centrales")
+
+note right of auth : **Módulo Base**\nTodos los demás módulos\ndependen de la autenticación\npara funcionar
+
+note bottom of pacientes : **Módulo Central**\nLa mayoría de módulos\nrequieren información\nde pacientes para operar
+
+note left of dashboard : **Módulo de Visualización**\nConsolida información\nde todos los módulos\npara generar reportes
+
+@enduml

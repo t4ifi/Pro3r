@@ -1,0 +1,419 @@
+@startuml UC-01-Autenticacion
+
+title Módulo de Autenticación - Iniciar Sesión
+
+actor Usuario
+
+rectangle "Sistema DentalSync" {
+  
+  usecase "UC-01\nIniciar sesión" as UC01
+  usecase "UC-01.1\nValidar\ncredenciales" as UC01_1
+  usecase "UC-01.2\nEstablecer\nsesión" as UC01_2
+  usecase "UC-01.3\nRedireccionar\nal dashboard" as UC01_3
+  
+  usecase "UC-01.E1\nCredenciales\ninválidas" as UC01_E1
+  usecase "UC-01.E2\nUsuario\nbloqueado" as UC01_E2
+  usecase "UC-01.E3\nError de\nconexión" as UC01_E3
+}
+
+Usuario --> UC01
+
+UC01 --> UC01_1 : <<include>>
+UC01 --> UC01_2 : <<include>>
+UC01 --> UC01_3 : <<include>>
+
+UC01_1 --> UC01_E1 : <<extend>>
+UC01_1 --> UC01_E2 : <<extend>>
+UC01 --> UC01_E3 : <<extend>>
+
+note right of UC01 : **FLUJO PRINCIPAL:**\n1. Ingresar usuario y contraseña\n2. Validar credenciales\n3. Establecer sesión\n4. Redireccionar al dashboard
+
+note bottom of UC01 : **PRECONDICIONES:**\n• Usuario registrado en el sistema\n• Credenciales válidas\n\n**POSTCONDICIONES:**\n• Sesión establecida\n• Acceso al sistema autorizado
+
+@enduml
+
+@startuml UC-02-Gestion-Citas
+
+title Módulo de Gestión de Citas - Gestionar Citas Dentales
+
+actor Dentista
+actor Recepcionista
+
+rectangle "Sistema DentalSync" {
+  
+  usecase "UC-02\nGestionar\ncitas" as UC02
+  usecase "UC-02.1\nAgendar\nnueva cita" as UC02_1
+  usecase "UC-02.2\nModificar\ncita existente" as UC02_2
+  usecase "UC-02.3\nCancelar\ncita" as UC02_3
+  usecase "UC-02.4\nBuscar\ncitas" as UC02_4
+  usecase "UC-02.5\nVer calendario\nde citas" as UC02_5
+  usecase "UC-02.6\nConfirmar\nasistencia" as UC02_6
+  
+  usecase "UC-07\nBuscar/Listar\npacientes" as UC07
+  
+  usecase "UC-02.E1\nConflicto de\nhorarios" as UC02_E1
+  usecase "UC-02.E2\nPaciente no\nencontrado" as UC02_E2
+  usecase "UC-02.E3\nCita ya\npasada" as UC02_E3
+}
+
+Dentista --> UC02
+Recepcionista --> UC02
+
+UC02 --> UC02_1 : <<include>>
+UC02 --> UC02_2 : <<include>>
+UC02 --> UC02_3 : <<include>>
+UC02 --> UC02_4 : <<include>>
+UC02 --> UC02_5 : <<include>>
+UC02 --> UC02_6 : <<include>>
+
+UC02_1 --> UC07 : <<include>>
+UC02_2 --> UC07 : <<include>>
+
+UC02_1 --> UC02_E1 : <<extend>>
+UC02_1 --> UC02_E2 : <<extend>>
+UC02_2 --> UC02_E3 : <<extend>>
+
+note right of UC02 : **FLUJO PRINCIPAL:**\n1. Seleccionar acción de cita\n2. Buscar/seleccionar paciente\n3. Definir fecha y hora\n4. Confirmar disponibilidad\n5. Guardar cita
+
+note bottom of UC02 : **PRECONDICIONES:**\n• Sesión iniciada\n• Paciente registrado (para agendar)\n\n**POSTCONDICIONES:**\n• Cita registrada en calendario\n• Notificación enviada
+
+@enduml
+
+@startuml UC-03-Gestion-Pacientes
+
+title Módulo de Gestión de Pacientes - Administrar Información de Pacientes
+
+actor Dentista
+actor Recepcionista
+
+rectangle "Sistema DentalSync" {
+  
+  usecase "UC-03\nGestionar\npacientes" as UC03
+  usecase "UC-03.1\nRegistrar\nnuevo paciente" as UC03_1
+  usecase "UC-03.2\nModificar datos\ndel paciente" as UC03_2
+  usecase "UC-03.3\nEliminar\npaciente" as UC03_3
+  usecase "UC-07\nBuscar/Listar\npacientes" as UC07
+  usecase "UC-03.4\nVer perfil\ncompleto" as UC03_4
+  usecase "UC-03.5\nExportar\ninformación" as UC03_5
+  
+  usecase "UC-03.E1\nDatos\nincompletos" as UC03_E1
+  usecase "UC-03.E2\nPaciente\nya existe" as UC03_E2
+  usecase "UC-03.E3\nPaciente con\ncitas activas" as UC03_E3
+}
+
+Dentista --> UC03
+Recepcionista --> UC03
+
+UC03 --> UC03_1 : <<include>>
+UC03 --> UC03_2 : <<include>>
+UC03 --> UC03_3 : <<include>>
+UC03 --> UC07 : <<include>>
+UC03 --> UC03_4 : <<include>>
+UC03 --> UC03_5 : <<include>>
+
+UC03_1 --> UC03_E1 : <<extend>>
+UC03_1 --> UC03_E2 : <<extend>>
+UC03_3 --> UC03_E3 : <<extend>>
+
+note right of UC03 : **FLUJO PRINCIPAL:**\n1. Seleccionar acción\n2. Ingresar/modificar datos\n3. Validar información\n4. Guardar cambios\n5. Confirmar operación
+
+note bottom of UC03 : **PRECONDICIONES:**\n• Sesión iniciada\n• Permisos de edición\n\n**POSTCONDICIONES:**\n• Información actualizada\n• Registro en bitácora\n• Datos disponibles
+
+@enduml
+
+@startuml UC-04-Gestion-Tratamientos
+
+title Módulo de Gestión de Tratamientos - Administrar Tratamientos Dentales
+
+actor Dentista
+
+rectangle "Sistema DentalSync" {
+  
+  usecase "UC-04\nGestionar\ntratamientos" as UC04
+  usecase "UC-04.1\nCrear plan\nde tratamiento" as UC04_1
+  usecase "UC-04.2\nModificar\ntratamiento" as UC04_2
+  usecase "UC-04.3\nFinalizar\ntratamiento" as UC04_3
+  usecase "UC-04.4\nAsignar\ntratamiento\na paciente" as UC04_4
+  usecase "UC-04.5\nCalcular\ncosto total" as UC04_5
+  usecase "UC-04.6\nVer historial\nde tratamientos" as UC04_6
+  
+  usecase "UC-07\nBuscar/Listar\npacientes" as UC07
+  
+  usecase "UC-04.E1\nTratamiento\nincompleto" as UC04_E1
+  usecase "UC-04.E2\nConflicto de\nprocedimientos" as UC04_E2
+}
+
+Dentista --> UC04
+
+UC04 --> UC04_1 : <<include>>
+UC04 --> UC04_2 : <<include>>
+UC04 --> UC04_3 : <<include>>
+UC04 --> UC04_4 : <<include>>
+UC04 --> UC04_5 : <<include>>
+UC04 --> UC04_6 : <<include>>
+
+UC04_4 --> UC07 : <<include>>
+
+UC04_1 --> UC04_E1 : <<extend>>
+UC04_1 --> UC04_E2 : <<extend>>
+
+note right of UC04 : **FLUJO PRINCIPAL:**\n1. Seleccionar paciente\n2. Evaluar condición dental\n3. Crear plan de tratamiento\n4. Definir procedimientos\n5. Calcular costos\n6. Guardar plan
+
+note bottom of UC04 : **PRECONDICIONES:**\n• Sesión iniciada como dentista\n• Paciente evaluado\n• Diagnóstico realizado\n\n**POSTCONDICIONES:**\n• Plan de tratamiento creado\n• Costos calculados\n• Cronograma definido
+
+@enduml
+
+@startuml UC-05-Gestion-Pagos
+
+title Módulo de Gestión de Pagos - Administrar Pagos y Facturación
+
+actor Dentista
+actor Recepcionista
+
+rectangle "Sistema DentalSync" {
+  
+  usecase "UC-05\nGestionar\npagos" as UC05
+  usecase "UC-05.1\nRegistrar\npago" as UC05_1
+  usecase "UC-05.2\nGenerar\nfactura" as UC05_2
+  usecase "UC-05.3\nConsultar\nestado de cuenta" as UC05_3
+  usecase "UC-05.4\nRegistrar\nabono" as UC05_4
+  usecase "UC-05.5\nGenerar\nreporte de pagos" as UC05_5
+  usecase "UC-05.6\nEnviar\nrecordatorio\nde pago" as UC05_6
+  
+  usecase "UC-07\nBuscar/Listar\npacientes" as UC07
+  
+  usecase "UC-05.E1\nMonto\ninválido" as UC05_E1
+  usecase "UC-05.E2\nError en\ngeneración\nde factura" as UC05_E2
+}
+
+Dentista --> UC05
+Recepcionista --> UC05
+
+UC05 --> UC05_1 : <<include>>
+UC05 --> UC05_2 : <<include>>
+UC05 --> UC05_3 : <<include>>
+UC05 --> UC05_4 : <<include>>
+UC05 --> UC05_5 : <<include>>
+UC05 --> UC05_6 : <<include>>
+
+UC05_1 --> UC07 : <<include>>
+UC05_3 --> UC07 : <<include>>
+
+UC05_1 --> UC05_E1 : <<extend>>
+UC05_2 --> UC05_E2 : <<extend>>
+
+note right of UC05 : **FLUJO PRINCIPAL:**\n1. Seleccionar paciente\n2. Verificar deuda pendiente\n3. Registrar monto de pago\n4. Seleccionar método de pago\n5. Generar comprobante\n6. Actualizar estado de cuenta
+
+note bottom of UC05 : **PRECONDICIONES:**\n• Sesión iniciada\n• Paciente con deuda pendiente\n• Tratamiento realizado\n\n**POSTCONDICIONES:**\n• Pago registrado\n• Estado de cuenta actualizado\n• Comprobante generado
+
+@enduml
+
+@startuml UC-06-Gestion-Usuarios
+
+title Módulo de Gestión de Usuarios - Administrar Usuarios del Sistema
+
+actor Administrador
+
+rectangle "Sistema DentalSync" {
+  
+  usecase "UC-06\nGestionar\nusuarios" as UC06
+  usecase "UC-06.1\nCrear\nnuevo usuario" as UC06_1
+  usecase "UC-06.2\nModificar\nusuario" as UC06_2
+  usecase "UC-06.3\nEliminar\nusuario" as UC06_3
+  usecase "UC-06.4\nAsignar\nroles y permisos" as UC06_4
+  usecase "UC-06.5\nRestablcer\ncontraseña" as UC06_5
+  usecase "UC-06.6\nBloquear/Desbloquear\nusuario" as UC06_6
+  
+  usecase "UC-06.E1\nUsuario\nya existe" as UC06_E1
+  usecase "UC-06.E2\nRol\ninválido" as UC06_E2
+  usecase "UC-06.E3\nUsuario con\nsesión activa" as UC06_E3
+}
+
+Administrador --> UC06
+
+UC06 --> UC06_1 : <<include>>
+UC06 --> UC06_2 : <<include>>
+UC06 --> UC06_3 : <<include>>
+UC06 --> UC06_4 : <<include>>
+UC06 --> UC06_5 : <<include>>
+UC06 --> UC06_6 : <<include>>
+
+UC06_1 --> UC06_E1 : <<extend>>
+UC06_4 --> UC06_E2 : <<extend>>
+UC06_3 --> UC06_E3 : <<extend>>
+
+note right of UC06 : **FLUJO PRINCIPAL:**\n1. Acceder a gestión de usuarios\n2. Seleccionar acción a realizar\n3. Ingresar datos del usuario\n4. Asignar roles y permisos\n5. Validar información\n6. Guardar cambios
+
+note bottom of UC06 : **PRECONDICIONES:**\n• Sesión iniciada como administrador\n• Permisos de administración\n\n**POSTCONDICIONES:**\n• Usuario creado/modificado\n• Permisos asignados\n• Notificación enviada
+
+@enduml
+
+@startuml UC-07-Busqueda-Pacientes
+
+title Módulo de Búsqueda - Buscar y Listar Pacientes
+
+actor Dentista
+actor Recepcionista
+
+rectangle "Sistema DentalSync" {
+  
+  usecase "UC-07\nBuscar/Listar\npacientes" as UC07
+  usecase "UC-07.1\nBuscar por\nnombre" as UC07_1
+  usecase "UC-07.2\nBuscar por\nteléfono" as UC07_2
+  usecase "UC-07.3\nBuscar por\nemail" as UC07_3
+  usecase "UC-07.4\nFiltrar\npor criterios" as UC07_4
+  usecase "UC-07.5\nMostrar\nlista completa" as UC07_5
+  usecase "UC-07.6\nOrdenar\nresultados" as UC07_6
+  
+  usecase "UC-07.E1\nNo se encontraron\nresultados" as UC07_E1
+  usecase "UC-07.E2\nCriterio de\nbúsqueda inválido" as UC07_E2
+}
+
+Dentista --> UC07
+Recepcionista --> UC07
+
+UC07 --> UC07_1 : <<include>>
+UC07 --> UC07_2 : <<include>>
+UC07 --> UC07_3 : <<include>>
+UC07 --> UC07_4 : <<include>>
+UC07 --> UC07_5 : <<include>>
+UC07 --> UC07_6 : <<include>>
+
+UC07_1 --> UC07_E1 : <<extend>>
+UC07_2 --> UC07_E1 : <<extend>>
+UC07_3 --> UC07_E1 : <<extend>>
+UC07 --> UC07_E2 : <<extend>>
+
+note right of UC07 : **FLUJO PRINCIPAL:**\n1. Ingresar criterio de búsqueda\n2. Ejecutar búsqueda\n3. Mostrar resultados\n4. Permitir filtrado adicional\n5. Seleccionar paciente
+
+note bottom of UC07 : **PRECONDICIONES:**\n• Sesión iniciada\n• Existen pacientes registrados\n\n**POSTCONDICIONES:**\n• Resultados mostrados\n• Paciente seleccionado\n• Acceso a información
+
+@enduml
+
+@startuml UC-08-Comunicacion-WhatsApp
+
+title Módulo de Comunicación WhatsApp - Enviar Mensajes y Recordatorios
+
+actor Dentista
+actor Recepcionista
+
+rectangle "Sistema DentalSync" {
+  
+  usecase "UC-08\nComunicación\nWhatsApp" as UC08
+  usecase "UC-08.1\nEnviar\nrecordatorio\nde cita" as UC08_1
+  usecase "UC-08.2\nEnviar\nmensaje\npersonalizado" as UC08_2
+  usecase "UC-08.3\nEnviar\nresultados\nde estudios" as UC08_3
+  usecase "UC-08.4\nConfigurar\nplantillas\nde mensajes" as UC08_4
+  usecase "UC-08.5\nVer historial\nde mensajes" as UC08_5
+  
+  usecase "UC-07\nBuscar/Listar\npacientes" as UC07
+  
+  usecase "UC-08.E1\nNúmero\ninválido" as UC08_E1
+  usecase "UC-08.E2\nError de\nenvío" as UC08_E2
+  usecase "UC-08.E3\nServicio\nno disponible" as UC08_E3
+}
+
+Dentista --> UC08
+Recepcionista --> UC08
+
+UC08 --> UC08_1 : <<include>>
+UC08 --> UC08_2 : <<include>>
+UC08 --> UC08_3 : <<include>>
+UC08 --> UC08_4 : <<include>>
+UC08 --> UC08_5 : <<include>>
+
+UC08_1 --> UC07 : <<include>>
+UC08_2 --> UC07 : <<include>>
+
+UC08_1 --> UC08_E1 : <<extend>>
+UC08_2 --> UC08_E2 : <<extend>>
+UC08 --> UC08_E3 : <<extend>>
+
+note right of UC08 : **FLUJO PRINCIPAL:**\n1. Seleccionar paciente\n2. Elegir tipo de mensaje\n3. Personalizar contenido\n4. Verificar número de teléfono\n5. Enviar mensaje\n6. Confirmar entrega
+
+note bottom of UC08 : **PRECONDICIONES:**\n• Sesión iniciada\n• Paciente con número válido\n• Servicio WhatsApp activo\n\n**POSTCONDICIONES:**\n• Mensaje enviado\n• Registro en historial\n• Estado de entrega actualizado
+
+@enduml
+
+@startuml UC-09-Dashboard-Reportes
+
+title Módulo Dashboard - Visualizar Información y Reportes
+
+actor Dentista
+actor Administrador
+
+rectangle "Sistema DentalSync" {
+  
+  usecase "UC-09\nVer Dashboard\ny Reportes" as UC09
+  usecase "UC-09.1\nVer estadísticas\ngenerales" as UC09_1
+  usecase "UC-09.2\nVer citas\ndel día" as UC09_2
+  usecase "UC-09.3\nVer actividad\nreciente" as UC09_3
+  usecase "UC-09.4\nGenerar reporte\nde ingresos" as UC09_4
+  usecase "UC-09.5\nGenerar reporte\nde pacientes" as UC09_5
+  usecase "UC-09.6\nExportar\nreportes" as UC09_6
+  
+  usecase "UC-09.E1\nError al\ngenerar reporte" as UC09_E1
+  usecase "UC-09.E2\nSin datos\npara mostrar" as UC09_E2
+}
+
+Dentista --> UC09
+Administrador --> UC09
+
+UC09 --> UC09_1 : <<include>>
+UC09 --> UC09_2 : <<include>>
+UC09 --> UC09_3 : <<include>>
+UC09 --> UC09_4 : <<include>>
+UC09 --> UC09_5 : <<include>>
+UC09 --> UC09_6 : <<include>>
+
+UC09_4 --> UC09_E1 : <<extend>>
+UC09_5 --> UC09_E1 : <<extend>>
+UC09 --> UC09_E2 : <<extend>>
+
+note right of UC09 : **FLUJO PRINCIPAL:**\n1. Acceder al dashboard\n2. Seleccionar información a visualizar\n3. Aplicar filtros de fecha\n4. Generar visualización\n5. Exportar si es necesario
+
+note bottom of UC09 : **PRECONDICIONES:**\n• Sesión iniciada\n• Datos disponibles en el sistema\n\n**POSTCONDICIONES:**\n• Información visualizada\n• Reportes generados\n• Datos exportados
+
+@enduml
+
+@startuml UC-10-Historial-Clinico
+
+title Módulo de Historial Clínico - Registrar Entrada en Historial Clínico
+
+actor Dentista
+
+rectangle "Sistema DentalSync" {
+  
+  usecase "UC-10\nRegistrar entrada\nhistorial clínico" as UC10
+  usecase "UC-07\nBuscar/Listar\npacientes" as UC07
+  usecase "UC-10.1\nSeleccionar\npaciente" as UC10_1
+  usecase "UC-10.2\nIngresar\ndiagnóstico" as UC10_2
+  usecase "UC-10.3\nRegistrar\nsíntomas" as UC10_3
+  usecase "UC-10.4\nDocumentar\ntratamiento" as UC10_4
+  usecase "UC-10.5\nAdjuntar\nimágenes" as UC10_5
+  usecase "UC-10.6\nVer historial\ncompleto" as UC10_6
+  
+  usecase "UC-10.E1\nPaciente no\nencontrado" as UC10_E1
+  usecase "UC-10.E2\nDatos\nincompletos" as UC10_E2
+  usecase "UC-10.E3\nError al\nadjuntar archivos" as UC10_E3
+}
+
+Dentista --> UC10
+
+UC10 --> UC07 : <<include>>
+UC10 --> UC10_1 : <<include>>
+UC10 --> UC10_2 : <<include>>
+UC10 --> UC10_3 : <<include>>
+UC10 --> UC10_4 : <<include>>
+UC10 --> UC10_5 : <<include>>
+UC10 --> UC10_6 : <<include>>
+
+UC10_1 --> UC10_E1 : <<extend>>
+UC10_2 --> UC10_E2 : <<extend>>
+UC10_5 --> UC10_E3 : <<extend>>
+
+note right of UC10 : **FLUJO PRINCIPAL:**\n1. Buscar paciente\n2. Acceder a historial\n3. Crear nueva entrada\n4. Registrar diagnóstico\n5. Documentar síntomas\n6. Adjuntar imágenes\n7. Guardar información
+
+note bottom of UC10 : **PRECONDICIONES:**\n• Sesión iniciada como dentista\n• Paciente existe\n• Cita realizada\n\n**POSTCONDICIONES:**\n• Entrada registrada\n• Historial actualizado\n• Documentos adjuntados
+
+@enduml

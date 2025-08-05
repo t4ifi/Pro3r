@@ -1,0 +1,89 @@
+@startuml Vista-General-Sistema-DentalSync
+
+title Sistema DentalSync - Vista General de Casos de Uso
+
+left to right direction
+
+actor Administrador
+actor Dentista  
+actor Recepcionista
+
+rectangle "Sistema DentalSync" {
+  
+  package "Autenticación" {
+    usecase "UC-01\nIniciar sesión" as UC01
+  }
+  
+  package "Gestión de Citas" {
+    usecase "UC-02\nGestionar\ncitas" as UC02
+  }
+  
+  package "Gestión de Pacientes" {
+    usecase "UC-03\nGestionar\npacientes" as UC03
+    usecase "UC-07\nBuscar/Listar\npacientes" as UC07
+  }
+  
+  package "Gestión de Tratamientos" {
+    usecase "UC-04\nGestionar\ntratamientos" as UC04
+  }
+  
+  package "Gestión de Pagos" {
+    usecase "UC-05\nGestionar\npagos" as UC05
+  }
+  
+  package "Gestión de Usuarios" {
+    usecase "UC-06\nGestionar\nusuarios" as UC06
+  }
+  
+  package "Comunicación" {
+    usecase "UC-08\nComunicación\nWhatsApp" as UC08
+  }
+  
+  package "Reportes y Dashboard" {
+    usecase "UC-09\nVer Dashboard\ny Reportes" as UC09
+  }
+  
+  package "Historial Clínico" {
+    usecase "UC-10\nRegistrar entrada\nhistorial clínico" as UC10
+  }
+}
+
+' Relaciones de Administrador
+Administrador --> UC01
+Administrador --> UC06
+Administrador --> UC09
+
+' Relaciones de Dentista
+Dentista --> UC01
+Dentista --> UC02
+Dentista --> UC03
+Dentista --> UC04
+Dentista --> UC05
+Dentista --> UC07
+Dentista --> UC08
+Dentista --> UC09
+Dentista --> UC10
+
+' Relaciones de Recepcionista
+Recepcionista --> UC01
+Recepcionista --> UC02
+Recepcionista --> UC03
+Recepcionista --> UC05
+Recepcionista --> UC07
+Recepcionista --> UC08
+
+' Relaciones entre casos de uso
+UC02 --> UC07 : <<include>>
+UC03 --> UC07 : <<include>>
+UC04 --> UC07 : <<include>>
+UC05 --> UC07 : <<include>>
+UC08 --> UC07 : <<include>>
+UC10 --> UC07 : <<include>>
+
+note top of Administrador : **ROL: Administrador**\n• Gestión completa del sistema\n• Administración de usuarios\n• Acceso a todos los reportes\n• Configuración del sistema
+
+note top of Dentista : **ROL: Dentista**\n• Gestión clínica completa\n• Diagnósticos y tratamientos\n• Historial clínico\n• Comunicación con pacientes\n• Reportes especializados
+
+note top of Recepcionista : **ROL: Recepcionista**\n• Gestión de citas\n• Atención al paciente\n• Facturación y pagos\n• Comunicación básica
+
+@enduml
