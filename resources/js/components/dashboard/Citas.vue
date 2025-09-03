@@ -103,7 +103,7 @@ async function fetchCitas(fecha = null) {
   if (fecha) url += `?fecha=${fecha}`;
   try {
     const response = await axios.get(url);
-    citas.value = response.data.data || [];
+    citas.value = response.data || [];
   } catch (e) {
     console.error('Error al cargar citas:', e);
     citas.value = [];

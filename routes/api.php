@@ -47,6 +47,10 @@ Route::middleware(['auth.api'])->group(function () {
     Route::put('/tratamientos/{id}/finalizar', [TratamientoController::class, 'finalizar']);
     Route::get('/tratamientos/historial/{pacienteId}', [TratamientoController::class, 'getHistorialClinico']);
 
+    // Rutas de autenticación
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/me', [AuthController::class, 'me']);
+
     // Rutas para sistema de pagos
     Route::prefix('pagos')->group(function () {
         Route::post('/init-session', [PagoController::class, 'initSession']); // Para pruebas
@@ -56,32 +60,6 @@ Route::middleware(['auth.api'])->group(function () {
         Route::get('/paciente/{pacienteId}', [PagoController::class, 'verPagosPaciente']);
         Route::post('/cuota', [PagoController::class, 'registrarPagoCuota']);
         Route::get('/cuotas/{pagoId}', [PagoController::class, 'getCuotasPago']); // Nueva ruta para obtener cuotas
-    });
-    
-    // Rutas de autenticación
-    Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/me', [AuthController::class, 'me']);
-    Route::post('/placas', [PlacaController::class, 'store']);
-    Route::put('/placas/{id}', [PlacaController::class, 'update']);
-    Route::delete('/placas/{id}', [PlacaController::class, 'destroy']);
-
-    // Rutas para tratamientos
-    Route::get('/tratamientos', [TratamientoController::class, 'index']);
-    Route::get('/tratamientos/pacientes', [TratamientoController::class, 'getPacientes']);
-    Route::get('/tratamientos/paciente/{pacienteId}', [TratamientoController::class, 'getTratamientosPaciente']);
-    Route::post('/tratamientos', [TratamientoController::class, 'store']);
-    Route::post('/tratamientos/{id}/observacion', [TratamientoController::class, 'addObservacion']);
-    Route::put('/tratamientos/{id}/finalizar', [TratamientoController::class, 'finalizar']);
-    Route::get('/tratamientos/historial/{pacienteId}', [TratamientoController::class, 'getHistorialClinico']);
-
-    // Rutas para sistema de pagos
-    Route::prefix('pagos')->group(function () {
-        Route::post('/init-session', [PagoController::class, 'initSession']); // Solo para desarrollo
-        Route::get('/pacientes', [PagoController::class, 'getPacientes']);
-        Route::get('/resumen', [PagoController::class, 'getResumenPagos']);
-        Route::post('/registrar', [PagoController::class, 'registrarPago']);
-        Route::get('/paciente/{pacienteId}', [PagoController::class, 'verPagosPaciente']);
-        Route::post('/cuota', [PagoController::class, 'registrarPagoCuota']);
     });
 
     // Rutas para WhatsApp

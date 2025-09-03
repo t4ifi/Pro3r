@@ -295,8 +295,8 @@
     </div>
 
     <!-- Modal de Crear/Editar Automatización -->
-    <div v-if="modalAbierto" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div class="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+    <div v-if="modalAbierto" class="modal-overlay" @click="cerrarModalClick">
+      <div class="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto" @click.stop>
         <div class="p-6 border-b border-gray-200">
           <h2 class="text-2xl font-bold text-gray-800">
             <i :class="[modalTipo === 'crear' ? 'bx bx-plus' : 'bx bx-edit', 'mr-2']"></i>
@@ -848,6 +848,13 @@ const cerrarModal = () => {
   modalAbierto.value = false;
 };
 
+const cerrarModalClick = (event) => {
+  // Solo cerrar si se hace clic en el overlay, no en el contenido del modal
+  if (event.target === event.currentTarget) {
+    cerrarModal();
+  }
+};
+
 const guardarAutomatizacion = async () => {
   cargandoFormulario.value = true;
   
@@ -1019,5 +1026,22 @@ onMounted(() => {
 /* Vista previa estilo WhatsApp */
 .bg-green-50 {
   background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23f0f9ff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* Modal overlay con efecto blur */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  padding: 1rem;
 }
 </style>

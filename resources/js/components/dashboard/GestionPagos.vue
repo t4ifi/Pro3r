@@ -316,7 +316,8 @@
                     type="text" 
                     v-model="pago.monto_cuota" 
                     @input="formatearInputMonto($event, 'monto_cuota', pago)"
-                    placeholder="0"
+                    :class="['monto-input', { 'monto-autocompletado': pago.autocompletado }]"
+                    :placeholder="pago.modalidad_pago === 'cuotas_variables' ? 'Ingresa el monto que deseas pagar' : 'Selecciona una cuota para autocompletar'"
                     required
                   >
                   <div v-if="pago.monto_cuota && !validarMontoCuota(pago)" class="error-monto">
@@ -335,7 +336,7 @@
 
                 <div v-if="pago.modalidad_pago === 'cuotas_fijas'" class="form-group">
                   <label>🔢 Número de Cuota</label>
-                  <select v-model="pago.numero_cuota" @change="onCuotaSeleccionada(pago)">
+                  <select v-model="pago.numero_cuota" @change="onCuotaSeleccionada(pago)" required>
                     <option value="">Seleccionar cuota...</option>
                     <option 
                       v-for="n in pago.total_cuotas" 
@@ -347,7 +348,7 @@
                       <span v-if="cuotasDetalle[pago.id]">
                         {{ (() => {
                           const cuota = cuotasDetalle[pago.id].find(c => c.numero_cuota == n);
-                          return cuota ? (cuota.estado === 'pagada' ? ' (Pagada)' : ` - $${formatearMonto(cuota.monto)}`) : '';
+                          return cuota ? (cuota.estado === 'pagada' ? ' ✅ (Pagada)' : ` - $${formatearMonto(cuota.monto)} 💰`) : '';
                         })() }}
                       </span>
                     </option>
@@ -359,6 +360,14 @@
                       const cuotaInfo = cuotasDetalle[pago.id].find(c => c.numero_cuota == pago.numero_cuota);
                       return cuotaInfo ? `💡 Cuota ${pago.numero_cuota}: $${formatearMonto(cuotaInfo.monto)} - Vence: ${formatearFecha(cuotaInfo.fecha_vencimiento)}` : '';
                     })() }}
+                  </div>
+                  
+                  <!-- Mensaje informativo según modalidad de pago -->
+                  <div v-if="pago.modalidad_pago === 'cuotas_fijas'" class="autocompletado-info">
+                    ℹ️ Al seleccionar una cuota, el monto se completará automáticamente
+                  </div>
+                  <div v-else-if="pago.modalidad_pago === 'cuotas_variables'" class="autocompletado-info">
+                    💡 Ingresa el monto que deseas abonar al tratamiento
                   </div>
                 </div>
               </div>
@@ -564,38 +573,107 @@ export default {
     // Cargar información detallada de cuotas de un pago
     async cargarCuotasPago(pagoId) {
       try {
+        console.log(`📥 Cargando cuotas para pago ID: ${pagoId}`);
+        
         const response = await fetch(`/api/pagos/cuotas/${pagoId}`);
         const data = await response.json();
+        
+        console.log('📊 Respuesta del servidor:', data);
         
         if (data.success) {
           // Almacenar información de cuotas indexada por pago_id
           this.cuotasDetalle[pagoId] = data.cuotas;
+          console.log(`✅ Cuotas cargadas para pago ${pagoId}:`, data.cuotas);
+          
+          // Forzar reactividad de Vue
+          this.$forceUpdate();
+        } else {
+          console.error('❌ Error al cargar cuotas:', data.message);
+          this.mostrarMensaje(data.message || 'Error al cargar cuotas', 'error');
         }
       } catch (error) {
-        console.error('Error al cargar cuotas:', error);
+        console.error('💥 Error de conexión al cargar cuotas:', error);
+        this.mostrarMensaje('Error de conexión al cargar cuotas', 'error');
       }
     },
     
     // Manejar cambio de cuota seleccionada para autocompletar el monto
     onCuotaSeleccionada(pago) {
-      if (pago.modalidad_pago === 'cuotas_fijas' && pago.numero_cuota && this.cuotasDetalle[pago.id]) {
-        // Buscar la cuota específica
-        const cuotaSeleccionada = this.cuotasDetalle[pago.id].find(
-          cuota => cuota.numero_cuota == pago.numero_cuota && cuota.estado === 'pendiente'
-        );
-        
-        if (cuotaSeleccionada) {
-          // Autocompletar el monto correspondiente a esa cuota SIN formatear
-          // para evitar problemas con los decimales
-          pago.monto_cuota = parseFloat(cuotaSeleccionada.monto).toString();
-          
-          // Opcional: Actualizar la descripción
-          pago.descripcion_cuota = `Cuota ${pago.numero_cuota} de ${pago.total_cuotas}`;
-        } else {
-          // Si la cuota ya está pagada o no existe, limpiar el monto
+      console.log('🔧 onCuotaSeleccionada llamado!');
+      console.log('📋 Pago:', pago);
+      console.log('🔢 Cuota seleccionada:', pago.numero_cuota);
+      console.log('🏷️ Modalidad pago:', pago.modalidad_pago);
+      console.log('📊 Cuotas disponibles:', this.cuotasDetalle[pago.id]);
+      
+      // Validar que tenemos todos los datos necesarios
+      if (!pago.modalidad_pago || pago.modalidad_pago !== 'cuotas_fijas') {
+        console.log('❌ No es cuota fija');
+        return;
+      }
+      
+      if (!pago.numero_cuota) {
+        console.log('❌ No hay cuota seleccionada');
+        pago.monto_cuota = '';
+        pago.descripcion_cuota = '';
+        return;
+      }
+      
+      if (!this.cuotasDetalle[pago.id]) {
+        console.log('❌ No hay cuotas cargadas para este pago');
+        this.mostrarMensaje('Cargando información de cuotas...', 'info');
+        this.cargarCuotasPago(pago.id).then(() => {
+          // Intentar nuevamente después de cargar
+          setTimeout(() => this.onCuotaSeleccionada(pago), 500);
+        });
+        return;
+      }
+      
+      // Buscar la cuota específica
+      const cuotaSeleccionada = this.cuotasDetalle[pago.id].find(
+        cuota => cuota.numero_cuota == pago.numero_cuota
+      );
+      
+      console.log('🔍 Cuota encontrada:', cuotaSeleccionada);
+      
+      if (cuotaSeleccionada) {
+        // Verificar si la cuota ya está pagada
+        if (cuotaSeleccionada.estado === 'pagada') {
           pago.monto_cuota = '';
-          this.mostrarMensaje(`La cuota ${pago.numero_cuota} ya está pagada o no existe`, 'error');
+          pago.descripcion_cuota = '';
+          this.mostrarMensaje(`❌ La cuota ${pago.numero_cuota} ya está pagada`, 'error');
+          return;
         }
+        
+        // Autocompletar el monto correspondiente a esa cuota
+        const montoNumerico = parseFloat(cuotaSeleccionada.monto);
+        const montoFormateado = this.formatearMontoInput(montoNumerico);
+        
+        console.log('💰 Monto a autocompletar:', montoNumerico, '→', montoFormateado);
+        
+        pago.monto_cuota = montoFormateado;
+        
+        // Activar animación visual
+        pago.autocompletado = true;
+        
+        // Autocompletar la descripción
+        pago.descripcion_cuota = `Cuota ${pago.numero_cuota} de ${pago.total_cuotas} - ${pago.descripcion}`;
+        
+        // Mostrar mensaje de éxito
+        this.mostrarMensaje(`✅ Monto autocompletado: $${this.formatearMonto(cuotaSeleccionada.monto)}`, 'exito');
+        
+        console.log('✅ Monto autocompletado exitosamente:', montoFormateado);
+        
+        // Remover la clase de animación después de un tiempo
+        setTimeout(() => {
+          pago.autocompletado = false;
+        }, 600);
+        
+      } else {
+        // Si la cuota no existe, limpiar el monto
+        pago.monto_cuota = '';
+        pago.descripcion_cuota = '';
+        this.mostrarMensaje(`❌ No se encontró información para la cuota ${pago.numero_cuota}`, 'error');
+        console.log('❌ Cuota no encontrada');
       }
     },
 
@@ -676,15 +754,8 @@ export default {
         }
       }
       
-      // Para montos de cuota, mantener formato simple sin separadores excesivos
-      let numeroFormateado;
-      if (objeto && campo === 'monto_cuota') {
-        // Para cuotas, usar formato simple
-        numeroFormateado = parseInt(valor).toString();
-      } else {
-        // Para otros campos, usar formato con separadores
-        numeroFormateado = this.formatearMontoInput(parseInt(valor));
-      }
+      // Formatear todos los campos con separadores de miles
+      let numeroFormateado = this.formatearMontoInput(parseInt(valor));
       
       // Actualizar el valor
       if (objeto) {
@@ -696,11 +767,13 @@ export default {
     
     formatearMontoInput(numero) {
       if (!numero) return '';
+      // Usar formato con comas como separadores de miles (ej: 10,000)
       return numero.toLocaleString('en-US');
     },
     
     limpiarMonto(montoFormateado) {
       if (!montoFormateado) return '0';
+      // Remover comas separadoras de miles
       return montoFormateado.toString().replace(/,/g, '');
     },
     
@@ -836,13 +909,17 @@ export default {
           headStyles: {
             fillColor: [162, 89, 255],
             textColor: [255, 255, 255],
-            fontStyle: 'bold'
+            fontStyle: 'bold',
+            halign: 'center',
+            valign: 'middle'
           },
           styles: {
             fontSize: 11,
-            cellPadding: 8
+            cellPadding: 8,
+            valign: 'middle'
           },
           columnStyles: {
+            0: { halign: 'left', fontStyle: 'normal' },
             1: { halign: 'right', fontStyle: 'bold' }
           }
         });
@@ -995,7 +1072,7 @@ export default {
           doc.setFontSize(8);
           doc.setFont('helvetica', 'normal');
           doc.setTextColor(100, 100, 100);
-          doc.text(`Reporte generado por: ${usuarioActual.nombre} (${usuarioActual.email})`, 20, 285);
+          doc.text(`Reporte generado por: ${usuarioActual.nombre}`, 20, 285);
           doc.text(`Página ${i} de ${totalPages}`, 170, 285);
           
           // Línea decorativa
@@ -1021,15 +1098,35 @@ export default {
     // Obtener información del usuario actual
     async obtenerUsuarioActual() {
       try {
-        const response = await axios.get('/api/user');
+        // Obtener usuario del sessionStorage
+        const usuarioGuardado = JSON.parse(sessionStorage.getItem('usuario') || '{}');
+        
+        if (usuarioGuardado && usuarioGuardado.nombre) {
+          return {
+            nombre: usuarioGuardado.nombre,
+            email: usuarioGuardado.email || usuarioGuardado.username + '@dentalsync.com'
+          };
+        }
+        
+        // Si no hay usuario en sessionStorage, intentar API como fallback
+        const response = await axios.get('/api/me');
+        if (response.data && response.data.nombre) {
+          return {
+            nombre: response.data.nombre,
+            email: response.data.email || response.data.username + '@dentalsync.com'
+          };
+        }
+        
+        // Fallback por defecto
         return {
-          nombre: response.data.user?.name || 'Usuario no identificado',
-          email: response.data.user?.email || 'email@noidentificado.com'
+          nombre: 'Sistema DentalSync',
+          email: 'sistema@dentalsync.com'
         };
       } catch (error) {
+        console.warn('No se pudo obtener información del usuario:', error);
         return {
-          nombre: 'Usuario no identificado',
-          email: 'email@noidentificado.com'
+          nombre: 'Sistema DentalSync',
+          email: 'sistema@dentalsync.com'
         };
       }
     }
@@ -1638,20 +1735,61 @@ export default {
   background: #e8f4fd;
   border: 1px solid #b3d8f2;
   border-radius: 6px;
-  font-size: 0.9rem;
-  color: #1565c0;
+  font-size: 14px;
+  color: #0c5aa6;
 }
 
-select option:disabled {
-  color: #999;
-  background-color: #f5f5f5;
+/* Estilos para el mensaje informativo del autocompletado */
+.autocompletado-info {
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+  border: 1px solid #badbcc;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #155724;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.form-group select {
-  background-image: url("data:image/svg+xml;charset=US-ASCII,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'%3e%3cpath fill='%23666' d='m2 0-2 2h4zm0 5 2-2h-4z'/%3e%3c/svg%3e");
-  background-repeat: no-repeat;
-  background-position: right 8px center;
-  background-size: 12px;
-  appearance: none;
+/* Mejorar los estilos del selector de cuotas */
+.form-group select option:disabled {
+  background: #f8f9fa;
+  color: #6c757d;
+  font-style: italic;
+}
+
+/* Estilos para feedback visual del autocompletado */
+.monto-autocompletado {
+  animation: highlightGreen 0.6s ease-in-out;
+}
+
+@keyframes highlightGreen {
+  0% { 
+    background-color: #d4edda; 
+    border-color: #c3e6cb; 
+  }
+  50% { 
+    background-color: #c3e6cb; 
+    border-color: #a3d9a5; 
+  }
+  100% { 
+    background-color: white; 
+    border-color: #ced4da; 
+  }
+}
+
+/* Estilos para mensajes de estado */
+.mensaje.exito {
+  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.mensaje.error {
+  background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+  color: #721c24;
+  border: 1px solid #f5c6cb;
 }
 </style>

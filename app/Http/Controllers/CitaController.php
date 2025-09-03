@@ -119,13 +119,23 @@ class CitaController extends Controller
                 $pacienteId = $paciente->id;
             }
 
+            // Obtener usuario automáticamente
+            try {
+                $usuarioId = $this->obtenerUsuarioAutomatico();
+            } catch (\Exception $e) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error del sistema: ' . $e->getMessage()
+                ], 500);
+            }
+
             // Crear la cita usando consulta directa
             $citaId = DB::table('citas')->insertGetId([
                 'fecha' => $validated['fecha'],
                 'motivo' => $validated['motivo'],
                 'estado' => $validated['estado'] ?? 'pendiente',
                 'paciente_id' => $pacienteId,
-                'usuario_id' => 3, // Dr. Juan Pérez (dentista)
+                'usuario_id' => $usuarioId,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
@@ -166,5 +176,58 @@ class CitaController extends Controller
             \Log::error('Error al eliminar cita:', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             return response()->json(['error' => 'Error interno del servidor: ' . $e->getMessage()], 500);
         }
+    }
+
+    /**
+     * Obtener usuario automáticamente con sistema de fallback inteligente
+     */
+    private function obtenerUsuarioAutomatico()
+    {
+        // Intentar obtener usuario de la sesión primero
+        $usuario = session('user');
+        
+        if ($usuario) {
+            \Log::info('Usuario autenticado encontrado: ' . $usuario['nombre'] . ' (ID: ' . $usuario['id'] . ')');
+            return $usuario['id'];
+        }
+        
+        \Log::info('No hay sesión activa, buscando usuario automáticamente...');
+        
+        // Prioridad 1: Buscar dentistas activos
+        $dentista = DB::table('usuarios')
+            ->where('rol', 'dentista')
+            ->where('activo', true)
+            ->orderBy('id', 'asc')
+            ->first();
+        
+        if ($dentista) {
+            \Log::info('Usando dentista automático: ' . $dentista->nombre . ' (ID: ' . $dentista->id . ')');
+            return $dentista->id;
+        }
+        
+        // Prioridad 2: Buscar cualquier usuario activo
+        $usuarioGeneral = DB::table('usuarios')
+            ->where('activo', true)
+            ->orderBy('id', 'asc')
+            ->first();
+        
+        if ($usuarioGeneral) {
+            \Log::info('Usando usuario general automático: ' . $usuarioGeneral->nombre . ' (ID: ' . $usuarioGeneral->id . ')');
+            return $usuarioGeneral->id;
+        }
+        
+        // Último recurso: Buscar cualquier usuario
+        $cualquierUsuario = DB::table('usuarios')
+            ->orderBy('id', 'asc')
+            ->first();
+        
+        if ($cualquierUsuario) {
+            \Log::warning('Usando último recurso - usuario: ' . $cualquierUsuario->nombre . ' (ID: ' . $cualquierUsuario->id . ')');
+            return $cualquierUsuario->id;
+        }
+        
+        // No hay usuarios en el sistema
+        \Log::error('No se encontraron usuarios en el sistema');
+        throw new \Exception('No hay usuarios disponibles en el sistema');
     }
 }

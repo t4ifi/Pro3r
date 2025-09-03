@@ -233,8 +233,8 @@
     </div>
 
     <!-- Modal de Nueva Conversación -->
-    <div v-if="mostrarNuevaConversacion" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4">
+    <div v-if="mostrarNuevaConversacion" class="modal-overlay" @click="cerrarModalClick">
+      <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4" @click.stop>
         <h3 class="text-xl font-semibold mb-4">Nueva Conversación</h3>
         
         <div class="space-y-4">
@@ -376,6 +376,11 @@ const cargarPacientes = async () => {
       { id: 4, nombre_completo: 'Carlos López', telefono: '+57 303 111 2222' }
     ];
   }
+};
+
+// Función para cerrar modal al hacer clic en el fondo
+const cerrarModalClick = () => {
+  mostrarNuevaConversacion.value = false;
 };
 
 const seleccionarConversacion = async (conversacion) => {
@@ -646,5 +651,21 @@ onMounted(async () => {
 
 .animate-bounce {
   animation: bounce 1s infinite;
+}
+
+/* Modal overlay con efecto blur */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
 }
 </style>

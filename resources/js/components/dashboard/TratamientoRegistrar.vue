@@ -217,6 +217,30 @@
       </div>
     </div>
 
+    <!-- Modal de confirmación para finalizar tratamiento -->
+    <div v-if="showConfirmModal" class="modal-overlay confirm-modal" @click="cancelarFinalizacion">
+      <div class="modal-content confirm-content" @click.stop>
+        <div class="confirm-icon">
+          <i class='bx bx-question-mark'></i>
+        </div>
+        <h3>🏁 Finalizar Tratamiento</h3>
+        <p>¿Estás seguro de que deseas finalizar este tratamiento?</p>
+        <p class="confirm-description">
+          ⚠️ Esta acción marcará el tratamiento como completado y ya no se podrá modificar.
+        </p>
+        <div class="modal-actions">
+          <button @click="cancelarFinalizacion" class="btn btn-secondary">
+            <i class='bx bx-x'></i>
+            Cancelar
+          </button>
+          <button @click="confirmarFinalizacion" class="btn btn-danger">
+            <i class='bx bx-check'></i>
+            Sí, Finalizar
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Modal de éxito -->
     <div v-if="showSuccessModal" class="modal-overlay success-modal" @click="closeSuccessModal">
       <div class="modal-content success-content" @click.stop>
@@ -248,6 +272,10 @@ const showSuccessModal = ref(false)
 const successMessage = ref('')
 const showObservacionModal = ref(false)
 const selectedTratamiento = ref(null)
+
+// Modal de confirmación para finalizar tratamiento
+const showConfirmModal = ref(false)
+const tratamientoAFinalizar = ref(null)
 
 // Formulario de nuevo tratamiento
 const nuevoTratamiento = ref({
@@ -398,20 +426,31 @@ const agregarObservacion = async () => {
 }
 
 const finalizarTratamiento = async (tratamientoId) => {
-  if (confirm('¿Estás seguro de que deseas finalizar este tratamiento?')) {
-    try {
-      const response = await axios.put(`/api/tratamientos/${tratamientoId}/finalizar`)
-      
-      if (response.data.success) {
-        successMessage.value = 'Tratamiento finalizado exitosamente'
-        showSuccessModal.value = true
-        await cargarTratamientosPaciente() // Recargar tratamientos
-      }
-    } catch (error) {
-      console.error('Error al finalizar tratamiento:', error)
-      errorMessages.value = ['Error al finalizar el tratamiento']
+  // Guardar el ID del tratamiento y mostrar modal de confirmación
+  tratamientoAFinalizar.value = tratamientoId
+  showConfirmModal.value = true
+}
+
+const confirmarFinalizacion = async () => {
+  try {
+    const response = await axios.put(`/api/tratamientos/${tratamientoAFinalizar.value}/finalizar`)
+    
+    if (response.data.success) {
+      successMessage.value = '🎉 ¡Tratamiento finalizado exitosamente!'
+      showConfirmModal.value = false
+      showSuccessModal.value = true
+      await cargarTratamientosPaciente() // Recargar tratamientos
     }
+  } catch (error) {
+    console.error('Error al finalizar tratamiento:', error)
+    errorMessages.value = ['Error al finalizar el tratamiento']
+    showConfirmModal.value = false
   }
+}
+
+const cancelarFinalizacion = () => {
+  showConfirmModal.value = false
+  tratamientoAFinalizar.value = null
 }
 
 const limpiarFormulario = () => {
@@ -837,6 +876,119 @@ const formatDate = (dateString) => {
   .modal-header,
   .modal-body {
     padding: 20px;
+  }
+}
+
+/* Estilos para modal de confirmación */
+.confirm-modal .modal-overlay {
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(5px);
+}
+
+.confirm-content {
+  text-align: center;
+  padding: 40px 30px;
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  max-width: 450px;
+  animation: confirmSlideIn 0.3s ease-out;
+}
+
+.confirm-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #FEE68A, #F59E0B);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  box-shadow: 0 10px 20px rgba(245, 158, 11, 0.3);
+}
+
+.confirm-icon i {
+  font-size: 40px;
+  color: white;
+  font-weight: bold;
+}
+
+.confirm-content h3 {
+  color: #1f2937;
+  margin-bottom: 15px;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.confirm-content p {
+  color: #6b7280;
+  margin-bottom: 15px;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.confirm-description {
+  background: #fef3c7;
+  padding: 15px;
+  border-radius: 10px;
+  border-left: 4px solid #f59e0b;
+  font-size: 14px;
+  color: #92400e;
+  margin-bottom: 25px !important;
+}
+
+.confirm-content .modal-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+.confirm-content .btn {
+  padding: 12px 25px;
+  border-radius: 10px;
+  font-weight: 500;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  min-width: 120px;
+  justify-content: center;
+}
+
+.confirm-content .btn-secondary {
+  background: #f3f4f6;
+  color: #6b7280;
+  border: 2px solid #e5e7eb;
+}
+
+.confirm-content .btn-secondary:hover {
+  background: #e5e7eb;
+  border-color: #d1d5db;
+  transform: translateY(-2px);
+}
+
+.confirm-content .btn-danger {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  border: 2px solid transparent;
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+}
+
+.confirm-content .btn-danger:hover {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+}
+
+@keyframes confirmSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
   }
 }
 </style>
