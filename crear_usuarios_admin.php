@@ -1,7 +1,20 @@
 <?php
 
 /**
- * Archivo para crear usuarios administrativos en DentalSync
+ * Archivo para crea        [
+            'username' => 'admin',
+            'nombre' => 'Administrador Principal',
+            'rol' => 'dentista',
+            'password' => 'DentalSync2025!', // Contraseña más segura
+            'activo' => true,
+        ],
+        [
+            'username' => 'admin2',
+            'nombre' => 'Administrador Recepcionista',
+            'rol' => 'recepcionista', 
+            'password' => 'Recepcion2025!', // Contraseña más segura
+            'activo' => true,
+        ]inistrativos en DentalSync
  * Crea 2 usuarios: admin (dentista) y admin2 (recepcionista)
  * 
  * Autor: Sistema DentalSync

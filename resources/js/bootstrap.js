@@ -3,6 +3,14 @@ window.axios = axios;
 
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
+// Configurar token CSRF automáticamente
+const token = document.head.querySelector('meta[name="csrf-token"]');
+if (token) {
+    window.axios.defaults.headers.common['X-CSRF-TOKEN'] = token.content;
+} else {
+    console.error('CSRF token not found: https://laravel.com/docs/csrf#csrf-x-csrf-token');
+}
+
 // Configurar interceptor para incluir automáticamente el token de autenticación
 axios.interceptors.request.use((config) => {
     const usuario = JSON.parse(sessionStorage.getItem('usuario') || '{}');

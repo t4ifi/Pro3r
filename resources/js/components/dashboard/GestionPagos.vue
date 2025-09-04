@@ -909,17 +909,13 @@ export default {
           headStyles: {
             fillColor: [162, 89, 255],
             textColor: [255, 255, 255],
-            fontStyle: 'bold',
-            halign: 'center',
-            valign: 'middle'
+            fontStyle: 'bold'
           },
           styles: {
             fontSize: 11,
-            cellPadding: 8,
-            valign: 'middle'
+            cellPadding: 8
           },
           columnStyles: {
-            0: { halign: 'left', fontStyle: 'normal' },
             1: { halign: 'right', fontStyle: 'bold' }
           }
         });

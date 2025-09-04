@@ -67,11 +67,23 @@ class TratamientoController extends Controller
     public function store(Request $request)
     {
         try {
-            $request->validate([
-                'paciente_id' => 'required|exists:pacientes,id',
-                'descripcion' => 'required|string|max:1000',
-                'fecha_inicio' => 'required|date',
-                'observaciones' => 'nullable|string|max:1000'
+            // Log de datos recibidos para debugging
+            \Log::info('Datos recibidos para registrar tratamiento:', [
+                'all_data' => $request->all(),
+                'user_session' => session('user'),
+                'ip' => $request->ip()
+            ]);
+
+            $validatedData =            $request->validate([
+                'paciente_id' => 'required|integer|exists:pacientes,id',
+                'descripcion' => 'required|string|min:5|max:1000|regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s\.,\-_()]+$/',
+                'fecha_inicio' => 'required|date|before_or_equal:today',
+                'observaciones' => 'nullable|string|max:1000|regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s\.,\-_()]+$/'
+            ], [
+                'descripcion.min' => 'La descripción debe tener al menos 5 caracteres',
+                'descripcion.regex' => 'La descripción contiene caracteres no válidos',
+                'fecha_inicio.before_or_equal' => 'La fecha de inicio no puede ser futura',
+                'observaciones.regex' => 'Las observaciones contienen caracteres no válidos'
             ]);
 
             // Obtener usuario automáticamente
@@ -120,12 +132,26 @@ class TratamientoController extends Controller
             ]);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::warning('Error de validación en registro de tratamiento:', [
+                'errors' => $e->errors(),
+                'input_data' => $request->all(),
+                'ip' => $request->ip()
+            ]);
+            
             return response()->json([
+                'success' => false,
                 'error' => 'Error de validación',
                 'details' => $e->errors()
             ], 422);
         } catch (\Exception $e) {
+            \Log::error('Error interno en registro de tratamiento:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'input_data' => $request->all()
+            ]);
+            
             return response()->json([
+                'success' => false,
                 'error' => 'Error interno del servidor: ' . $e->getMessage()
             ], 500);
         }

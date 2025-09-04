@@ -92,12 +92,18 @@ class CitaController extends Controller
     public function store(Request $request)
     {
         try {
-            // Validar los datos
+            // Validar los datos con reglas más estrictas
             $validated = $request->validate([
-                'fecha' => 'required|date',
-                'motivo' => 'required|string',
-                'nombre_completo' => 'required|string',
-                'estado' => 'string|in:pendiente,confirmada,cancelada,atendida',
+                'fecha' => 'required|date|after_or_equal:today',
+                'motivo' => 'required|string|max:500|regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s\.,\-_]+$/',
+                'nombre_completo' => 'required|string|max:255|regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/',
+                'estado' => 'nullable|string|in:pendiente,confirmada,cancelada,atendida',
+            ], [
+                'fecha.after_or_equal' => 'La fecha de la cita no puede ser anterior a hoy',
+                'motivo.regex' => 'El motivo contiene caracteres no válidos',
+                'nombre_completo.regex' => 'El nombre solo puede contener letras y espacios',
+                'motivo.max' => 'El motivo no puede exceder 500 caracteres',
+                'nombre_completo.max' => 'El nombre no puede exceder 255 caracteres'
             ]);
 
             // Buscar o crear paciente por nombre usando consulta directa

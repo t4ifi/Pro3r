@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class AuthenticateApiSimple
@@ -13,96 +14,66 @@ class AuthenticateApiSimple
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $authHeader = $request->header('Authorization');
-        
-        // Verificar primero si hay token Bearer válido
-        if ($authHeader && strpos($authHeader, 'Bearer ') === 0) {
+        // Para desarrollo: permitir todas las rutas sin autenticación estricta
+        if (config('app.env') === 'local' || config('app.debug') === true) {
+            \Log::info('🔓 Modo desarrollo: Permitiendo acceso sin autenticación', [
+                'route' => $request->path(),
+                'method' => $request->method(),
+                'env' => config('app.env'),
+                'debug' => config('app.debug')
+            ]);
             return $next($request);
         }
-        
-        // Si no hay token Bearer, verificar rutas sensibles
-        if ($this->isPagosRoute($request) || $this->isTratamientosRoute($request) || $this->isCitasRoute($request)) {
-            return $this->handleSensitiveRoute($request, $next);
+
+        // En producción: verificar autenticación múltiple
+        if ($this->isAuthenticated($request)) {
+            return $next($request);
         }
-        
-        // Para otras rutas, requerir autenticación estricta
-        if (!$authHeader) {
-            return response()->json([
-                'error' => 'No Authorization header'
-            ], 401);
-        }
+
+        // No autenticado
+        \Log::warning('Acceso denegado - Sin autenticación válida', [
+            'route' => $request->path(),
+            'method' => $request->method(),
+            'ip' => $request->ip(),
+            'user_agent' => $request->userAgent()
+        ]);
         
         return response()->json([
-            'error' => 'Invalid Authorization format'
+            'error' => 'Autenticación requerida',
+            'code' => 'AUTHENTICATION_REQUIRED'
         ], 401);
     }
     
     /**
-     * Manejar rutas sensibles con verificación de sesión
+     * Verificar si el usuario está autenticado mediante múltiples métodos
      */
-    private function handleSensitiveRoute(Request $request, Closure $next): Response
+    private function isAuthenticated(Request $request): bool
     {
-        // Verificar si hay sesión de usuario válida
-        $user = session('user');
-        if ($user && isset($user['id'])) {
-            // Log de acceso por sesión
-            \Log::info('Acceso por sesión a ruta sensible', [
-                'route' => $request->path(),
-                'user_id' => $user['id'],
-                'user_name' => $user['nombre'] ?? 'N/A',
-                'ip' => $request->ip(),
-                'method' => $request->method()
-            ]);
-            return $next($request);
+        // Método 1: Bearer Token
+        $authHeader = $request->header('Authorization');
+        if ($authHeader && str_starts_with($authHeader, 'Bearer ')) {
+            // En una implementación completa, aquí se validaría el token
+            return true;
         }
         
-        // Verificar si es una ruta de consulta (GET) vs modificación (POST/PUT/DELETE)
-        if (in_array($request->method(), ['POST', 'PUT', 'DELETE', 'PATCH'])) {
-            // Operaciones de modificación requieren autenticación estricta
-            \Log::warning('Intento de operación sin autenticación', [
-                'route' => $request->path(),
-                'method' => $request->method(),
-                'ip' => $request->ip(),
-                'user_agent' => $request->userAgent()
-            ]);
-            
-            return response()->json([
-                'error' => 'Autenticación requerida para operaciones de modificación',
-                'required' => 'Por favor inicie sesión para continuar'
-            ], 401);
+        // Método 2: Laravel Auth
+        if (Auth::check()) {
+            return true;
         }
         
-        // Para consultas (GET), permitir con log de advertencia
-        \Log::warning('Acceso sin autenticación a consulta', [
-            'route' => $request->path(),
-            'method' => $request->method(),
-            'ip' => $request->ip()
-        ]);
+        // Método 3: Sesión personalizada
+        $sessionUser = session('user');
+        if ($sessionUser && isset($sessionUser['logged_in']) && $sessionUser['logged_in'] === true) {
+            // Verificar que la sesión no haya expirado
+            $loginTime = \Carbon\Carbon::parse($sessionUser['login_time']);
+            if ($loginTime->diffInHours(now()) <= 1) {
+                return true;
+            } else {
+                // Limpiar sesión expirada
+                session()->forget(['user', 'auth_token']);
+            }
+        }
         
-        return $next($request);
-    }
-    
-    /**
-     * Verificar si la ruta es de pagos
-     */
-    private function isPagosRoute(Request $request): bool
-    {
-        return strpos($request->path(), 'api/pagos') === 0;
-    }
-    
-    /**
-     * Verificar si la ruta es de tratamientos
-     */
-    private function isTratamientosRoute(Request $request): bool
-    {
-        return strpos($request->path(), 'api/tratamientos') === 0;
-    }
-    
-    /**
-     * Verificar si la ruta es de citas
-     */
-    private function isCitasRoute(Request $request): bool
-    {
-        return strpos($request->path(), 'api/citas') === 0;
+        return false;
     }
 }

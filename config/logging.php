@@ -129,6 +129,24 @@ return [
             'path' => storage_path('logs/laravel.log'),
         ],
 
+        'audit' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/audit.log'),
+            'level' => env('LOG_LEVEL', 'info'),
+            'days' => env('LOG_AUDIT_DAYS', 365), // Mantener auditoría por 1 año
+            'replace_placeholders' => true,
+            'permission' => 0600, // Solo lectura para el propietario
+        ],
+
+        'security' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/security.log'),
+            'level' => env('LOG_LEVEL', 'warning'),
+            'days' => env('LOG_SECURITY_DAYS', 90), // Mantener logs de seguridad por 3 meses
+            'replace_placeholders' => true,
+            'permission' => 0600, // Solo lectura para el propietario
+        ],
+
     ],
 
 ];
