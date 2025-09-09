@@ -8,10 +8,32 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * ============================================================================
+ * MIDDLEWARE DE RATE LIMITING PARA API
+ * ============================================================================
+ *
+ * Este middleware limita la cantidad de peticiones permitidas por IP o usuario.
+ * En desarrollo, puede estar deshabilitado para facilitar pruebas.
+ *
+ * CARACTERÍSTICAS:
+ * - Limita la cantidad de requests por minuto
+ * - Permite deshabilitar en modo desarrollo
+ * - Devuelve error 429 si se excede el límite
+ *
+ * @package App\Http\Middleware
+ * @author DentalSync Development Team
+ * @version 2.0
+ * @since 2025-09-04
+ */
 class RateLimitingMiddleware
 {
     /**
-     * Handle an incoming request.
+     * Maneja el rate limiting de la petición entrante.
+     *
+     * @param Request $request
+     * @param Closure $next
+     * @return mixed
      */
     public function handle(Request $request, Closure $next, string $key = 'api'): Response
     {

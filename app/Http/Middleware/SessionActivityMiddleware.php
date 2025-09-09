@@ -6,14 +6,35 @@ use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
-use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * ============================================================================
+ * MIDDLEWARE DE ACTUALIZACIÓN DE ACTIVIDAD DE SESIÓN
+ * ============================================================================
+ *
+ * Este middleware actualiza la última actividad del usuario en cada petición.
+ * Si la sesión está inactiva por más de 1 hora, la expira automáticamente.
+ *
+ * CARACTERÍSTICAS:
+ * - Actualiza el campo 'last_activity' en la sesión y en la base de datos
+ * - Expira la sesión tras 1 hora de inactividad
+ * - Compatible con Auth de Laravel y sesión personalizada
+ *
+ * @package App\Http\Middleware
+ * @author DentalSync Development Team
+ * @version 2.0
+ * @since 2025-09-04
+ */
 class SessionActivityMiddleware
 {
     /**
-     * Handle an incoming request.
+     * Maneja la actualización de la actividad de sesión en cada request.
+     *
+     * @param Request $request
+     * @param Closure $next
+     * @return mixed
      */
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next)
     {
         // Solo aplicar en desarrollo y cuando hay sesión de usuario
         if (config('app.env') === 'local' || config('app.debug') === true) {

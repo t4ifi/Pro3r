@@ -7,10 +7,31 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * ============================================================================
+ * MIDDLEWARE DE PROTECCIÓN CSRF PARA API
+ * ============================================================================
+ *
+ * Este middleware protege las rutas de la API contra ataques CSRF.
+ * En desarrollo, puede estar deshabilitado para facilitar pruebas.
+ *
+ * CARACTERÍSTICAS:
+ * - Verifica el token CSRF en las peticiones
+ * - Permite deshabilitar en modo desarrollo
+ *
+ * @package App\Http\Middleware
+ * @author DentalSync Development Team
+ * @version 2.0
+ * @since 2025-09-04
+ */
 class CsrfApiProtection
 {
     /**
-     * Handle an incoming request.
+     * Maneja la protección CSRF en la petición entrante.
+     *
+     * @param Request $request
+     * @param Closure $next
+     * @return mixed
      */
     public function handle(Request $request, Closure $next): Response
     {

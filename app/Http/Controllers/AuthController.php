@@ -10,8 +10,46 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
+/**
+ * ============================================================================
+ * CONTROLADOR DE AUTENTICACIÓN - DENTALSYNC
+ * ============================================================================
+ * 
+ * Este controlador maneja toda la lógica de autenticación del sistema DentalSync.
+ * Implementa múltiples capas de seguridad y gestión robusta de sesiones.
+ * 
+ * CARACTERÍSTICAS PRINCIPALES:
+ * - Autenticación segura con rate limiting
+ * - Gestión de sesiones robusta
+ * - Logging de seguridad y auditoría
+ * - Protección contra ataques de fuerza bruta
+ * - Soporte para múltiples métodos de autenticación
+ * 
+ * MÉTODOS PÚBLICOS:
+ * - login()         : Autenticación de usuarios
+ * - logout()        : Cierre de sesión seguro
+ * - verificarSesion() : Verificación de estado de sesión
+ * - me()            : Información del usuario autenticado
+ * 
+ * MÉTODOS PRIVADOS:
+ * - generateSecureToken()     : Generación de tokens seguros
+ * - establecerSesionUsuario() : Configuración de sesión
+ * 
+ * @package App\Http\Controllers
+ * @author DentalSync Development Team
+ * @version 2.0
+ * @since 2025-09-04
+ */
 class AuthController extends Controller
 {
+    /**
+     * Autentica a un usuario usando usuario y contraseña.
+     * Aplica rate limiting y valida credenciales.
+     * Si es exitoso, establece la sesión y retorna datos del usuario.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function login(Request $request)
     {
         // Throttling para prevenir ataques de fuerza bruta
@@ -106,6 +144,13 @@ class AuthController extends Controller
         ]);
     }
 
+    /**
+     * Cierra la sesión del usuario actual.
+     * Limpia la sesión y el estado de autenticación.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function logout(Request $request)
     {
         $user = Auth::user() ?? session('user');
@@ -138,7 +183,9 @@ class AuthController extends Controller
     }
 
     /**
-     * Generar un token seguro para autenticación
+     * Genera un token seguro para autenticación de sesión.
+     *
+     * @return string
      */
     private function generateSecureToken(): string
     {
@@ -154,7 +201,12 @@ class AuthController extends Controller
     }
 
     /**
-     * Establecer sesión de usuario de manera robusta
+     * Establece la sesión del usuario de manera robusta y segura.
+     * Regenera el ID de sesión y almacena los datos relevantes.
+     *
+     * @param Usuario $usuario
+     * @param Request $request
+     * @return void
      */
     private function establecerSesionUsuario(Usuario $usuario, Request $request): void
     {
@@ -189,9 +241,13 @@ class AuthController extends Controller
             'ip' => $request->ip()
         ]);
     }
-    
+
     /**
-     * Verificar y actualizar sesión de usuario
+     * Verifica si la sesión del usuario está   activa y no ha expirado.
+     * Actualiza la última actividad si la sesión es válida.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
     public function verificarSesion(Request $request)
     {
@@ -237,9 +293,12 @@ class AuthController extends Controller
             ]
         ]);
     }
-    
+
     /**
-     * Obtener información del usuario autenticado
+     * Devuelve la información del usuario autenticado actual.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
     public function me(Request $request)
     {
