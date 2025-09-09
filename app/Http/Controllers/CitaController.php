@@ -11,8 +11,9 @@ class CitaController extends Controller
     public function index(Request $request)
     {
         try {
-            // Permitir filtrar por fecha (YYYY-MM-DD)
+            // Permitir filtrar por fecha (YYYY-MM-DD) y paciente_id
             $fecha = $request->query('fecha');
+            $pacienteId = $request->query('paciente_id');
             
             // Usar consulta directa con JOIN para evitar problemas de mbstring
             $query = DB::table('citas')
@@ -34,6 +35,10 @@ class CitaController extends Controller
             
             if ($fecha) {
                 $query->whereDate('citas.fecha', $fecha);
+            }
+            
+            if ($pacienteId) {
+                $query->where('citas.paciente_id', $pacienteId);
             }
             
             $citas = $query->orderBy('citas.fecha')->get();

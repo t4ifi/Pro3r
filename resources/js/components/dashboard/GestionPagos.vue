@@ -2,7 +2,10 @@
   <div class="pagos-container">
     <!-- Header -->
     <div class="header-section">
-      <h2 class="title">💰 Gestión de Pagos</h2>
+      <h2 class="title flex items-center justify-center gap-3">
+        <i class='bx bx-credit-card text-3xl text-green-600'></i>
+        Gestión de Pagos
+      </h2>
       <p class="subtitle">Sistema integral de pagos y financiamiento</p>
     </div>
 
@@ -73,12 +76,18 @@
       
       <!-- OPCIÓN 1: Registrar Nuevo Pago -->
       <div v-if="opcionActiva === 'registrar'" class="seccion-registrar">
-        <h3>📝 Registrar Nuevo Pago</h3>
+        <h3 class="flex items-center justify-center gap-3 mb-8">
+          <i class='bx bx-plus-circle text-2xl text-green-600'></i>
+          Registrar Nuevo Pago
+        </h3>
         
         <form @submit.prevent="registrarPago" class="form-pago">
           <!-- Selección de paciente -->
           <div class="form-group">
-            <label>👤 Paciente</label>
+            <label class="flex items-center gap-2">
+              <i class='bx bx-user text-blue-600'></i>
+              Paciente
+            </label>
             <select v-model="nuevoPago.paciente_id" required>
               <option value="">Seleccionar paciente...</option>
               <option v-for="paciente in pacientes" :key="paciente.id" :value="paciente.id">
@@ -89,7 +98,10 @@
 
           <!-- Descripción del tratamiento -->
           <div class="form-group">
-            <label>📋 Descripción del Tratamiento</label>
+            <label class="flex items-center gap-2">
+              <i class='bx bx-clipboard text-green-600'></i>
+              Descripción del Tratamiento
+            </label>
             <textarea 
               v-model="nuevoPago.descripcion" 
               placeholder="Ej: Ortodoncia completa, Implante dental, etc."
@@ -111,7 +123,10 @@
 
           <!-- Modalidad de pago -->
           <div class="form-group">
-            <label>💳 Modalidad de Pago</label>
+            <label class="flex items-center gap-2">
+              <i class='bx bx-credit-card text-purple-600'></i>
+              Modalidad de Pago
+            </label>
             <select v-model="nuevoPago.modalidad_pago" required>
               <option value="">Seleccionar modalidad...</option>
               <option value="pago_unico">Pago Único</option>
@@ -132,13 +147,19 @@
               required
             >
             <div v-if="nuevoPago.total_cuotas && nuevoPago.monto_total" class="cuota-info">
-              <p>💡 Cada cuota será de: <strong>${{ calcularMontoCuota() }}</strong></p>
+              <p class="flex items-center gap-2">
+                <i class='bx bx-info-circle text-blue-600'></i>
+                Cada cuota será de: <strong>${{ calcularMontoCuota() }}</strong>
+              </p>
             </div>
           </div>
 
           <!-- Fecha de pago -->
           <div class="form-group">
-            <label>📅 Fecha de Pago</label>
+            <label class="flex items-center gap-2">
+              <i class='bx bx-calendar text-orange-600'></i>
+              Fecha de Pago
+            </label>
             <input 
               type="date" 
               v-model="nuevoPago.fecha_pago"
@@ -148,7 +169,10 @@
 
           <!-- Observaciones -->
           <div class="form-group">
-            <label>📝 Observaciones (Opcional)</label>
+            <label class="flex items-center gap-2">
+              <i class='bx bx-note text-gray-600'></i>
+              Observaciones (Opcional)
+            </label>
             <textarea 
               v-model="nuevoPago.observaciones" 
               placeholder="Observaciones adicionales..."
@@ -164,11 +188,17 @@
 
       <!-- OPCIÓN 2: Ver Pagos de Paciente -->
       <div v-if="opcionActiva === 'ver'" class="seccion-ver">
-        <h3>🔍 Ver Pagos de Paciente</h3>
+        <h3 class="flex items-center gap-3">
+          <i class='bx bx-search text-2xl text-blue-600'></i>
+          Ver Pagos de Paciente
+        </h3>
         
         <!-- Selector de paciente -->
         <div class="form-group">
-          <label>👤 Seleccionar Paciente</label>
+          <label class="flex items-center gap-2">
+            <i class='bx bx-user text-blue-600'></i>
+            Seleccionar Paciente
+          </label>
           <select v-model="pacienteSeleccionado" @change="cargarPagosPaciente">
             <option value="">Seleccionar paciente...</option>
             <option v-for="paciente in pacientes" :key="paciente.id" :value="paciente.id">
@@ -181,7 +211,10 @@
         <div v-if="pagosPaciente" class="info-paciente">
           <div class="paciente-header">
             <div class="header-content">
-              <h4>👤 {{ pagosPaciente.paciente.nombre_completo }}</h4>
+              <h4 class="flex items-center gap-2">
+                <i class='bx bx-user-circle text-blue-600'></i>
+                {{ pagosPaciente.paciente.nombre_completo }}
+              </h4>
               <button @click="exportarPagosPDF" class="btn-pdf" :disabled="cargando">
                 <i class='bx bx-file-export'></i>
                 {{ cargando ? 'Generando...' : 'Exportar PDF' }}
@@ -215,19 +248,31 @@
 
               <div class="tratamiento-info">
                 <div class="info-row">
-                  <span>💵 Monto Total:</span>
+                  <span class="flex items-center gap-2">
+                    <i class='bx bx-dollar text-green-600'></i>
+                    Monto Total:
+                  </span>
                   <strong>${{ formatearMonto(pago.monto_total) }}</strong>
                 </div>
                 <div class="info-row">
-                  <span>💳 Modalidad:</span>
+                  <span class="flex items-center gap-2">
+                    <i class='bx bx-credit-card text-purple-600'></i>
+                    Modalidad:
+                  </span>
                   <strong>{{ obtenerTextoModalidad(pago.modalidad_pago) }}</strong>
                 </div>
                 <div class="info-row">
-                  <span>✅ Pagado:</span>
+                  <span class="flex items-center gap-2">
+                    <i class='bx bx-check-circle text-green-600'></i>
+                    Pagado:
+                  </span>
                   <strong>${{ formatearMonto(pago.monto_pagado) }}</strong>
                 </div>
                 <div class="info-row">
-                  <span>⏳ Restante:</span>
+                  <span class="flex items-center gap-2">
+                    <i class='bx bx-time-five text-orange-600'></i>
+                    Restante:
+                  </span>
                   <strong>${{ formatearMonto(pago.saldo_restante) }}</strong>
                 </div>
               </div>
@@ -245,7 +290,10 @@
 
               <!-- Cuotas fijas -->
               <div v-if="pago.modalidad_pago === 'cuotas_fijas' && pago.cuotas" class="cuotas-fijas">
-                <h6>📊 Plan de Cuotas:</h6>
+                <h6 class="flex items-center gap-2">
+                  <i class='bx bx-bar-chart text-blue-600'></i>
+                  Plan de Cuotas:
+                </h6>
                 <div class="cuotas-grid">
                   <div 
                     v-for="cuota in pago.cuotas" 
@@ -256,7 +304,7 @@
                     <span class="cuota-monto">${{ formatearMonto(cuota.monto) }}</span>
                     <span class="cuota-vencimiento">{{ formatearFecha(cuota.fecha_vencimiento) }}</span>
                     <span :class="['cuota-estado', cuota.estado]">
-                      {{ cuota.estado === 'pagada' ? '✅' : '⏳' }}
+                      <i :class="cuota.estado === 'pagada' ? 'bx bx-check-circle text-green-600' : 'bx bx-time-five text-orange-600'"></i>
                     </span>
                   </div>
                 </div>
@@ -264,7 +312,10 @@
 
               <!-- Historial de pagos -->
               <div v-if="pago.detalles_pagos && pago.detalles_pagos.length > 0" class="historial-pagos">
-                <h6>📝 Historial de Pagos:</h6>
+                <h6 class="flex items-center gap-2">
+                  <i class='bx bx-history text-indigo-600'></i>
+                  Historial de Pagos:
+                </h6>
                 <div class="pagos-timeline">
                   <div 
                     v-for="detalle in pago.detalles_pagos" 
@@ -285,11 +336,17 @@
 
       <!-- OPCIÓN 3: Registrar Pago de Cuota -->
       <div v-if="opcionActiva === 'cuota'" class="seccion-cuota">
-        <h3>💳 Registrar Pago de Cuota</h3>
+        <h3 class="flex items-center gap-3">
+          <i class='bx bx-credit-card text-2xl text-purple-600'></i>
+          Registrar Pago de Cuota
+        </h3>
         
         <!-- Selector de paciente para ver sus pagos pendientes -->
         <div class="form-group">
-          <label>👤 Paciente</label>
+          <label class="flex items-center gap-2">
+            <i class='bx bx-user text-blue-600'></i>
+            Paciente
+          </label>
           <select v-model="pacienteCuota" @change="cargarPagosPendientes">
             <option value="">Seleccionar paciente...</option>
             <option v-for="paciente in pacientes" :key="paciente.id" :value="paciente.id">
@@ -300,7 +357,10 @@
 
         <!-- Lista de pagos pendientes -->
         <div v-if="pagosPendientes.length > 0" class="pagos-pendientes">
-          <h4>📋 Tratamientos con Pagos Pendientes:</h4>
+          <h4 class="flex items-center gap-2">
+            <i class='bx bx-clipboard text-green-600'></i>
+            Tratamientos con Pagos Pendientes:
+          </h4>
           
           <div v-for="pago in pagosPendientes" :key="pago.id" class="pago-pendiente">
             <div class="pago-header">
@@ -311,7 +371,10 @@
             <form @submit.prevent="registrarCuota(pago)" class="form-cuota">
               <div class="form-row">
                 <div class="form-group">
-                  <label>💵 Monto a Pagar</label>
+                  <label class="flex items-center gap-2">
+                    <i class='bx bx-dollar text-green-600'></i>
+                    Monto a Pagar
+                  </label>
                   <input 
                     type="text" 
                     v-model="pago.monto_cuota" 
@@ -320,13 +383,17 @@
                     :placeholder="pago.modalidad_pago === 'cuotas_variables' ? 'Ingresa el monto que deseas pagar' : 'Selecciona una cuota para autocompletar'"
                     required
                   >
-                  <div v-if="pago.monto_cuota && !validarMontoCuota(pago)" class="error-monto">
-                    ⚠️ El monto no puede exceder el saldo restante (${{ formatearMonto(pago.saldo_restante) }})
+                  <div v-if="pago.monto_cuota && !validarMontoCuota(pago)" class="error-monto flex items-center gap-2">
+                    <i class='bx bx-error text-red-600'></i>
+                    El monto no puede exceder el saldo restante (${{ formatearMonto(pago.saldo_restante) }})
                   </div>
                 </div>
                 
                 <div class="form-group">
-                  <label>📅 Fecha de Pago</label>
+                  <label class="flex items-center gap-2">
+                    <i class='bx bx-calendar text-orange-600'></i>
+                    Fecha de Pago
+                  </label>
                   <input 
                     type="date" 
                     v-model="pago.fecha_cuota"
@@ -348,7 +415,7 @@
                       <span v-if="cuotasDetalle[pago.id]">
                         {{ (() => {
                           const cuota = cuotasDetalle[pago.id].find(c => c.numero_cuota == n);
-                          return cuota ? (cuota.estado === 'pagada' ? ' ✅ (Pagada)' : ` - $${formatearMonto(cuota.monto)} 💰`) : '';
+                          return cuota ? (cuota.estado === 'pagada' ? ' (Pagada)' : ` - $${formatearMonto(cuota.monto)}`) : '';
                         })() }}
                       </span>
                     </option>
@@ -367,13 +434,17 @@
                     ℹ️ Al seleccionar una cuota, el monto se completará automáticamente
                   </div>
                   <div v-else-if="pago.modalidad_pago === 'cuotas_variables'" class="autocompletado-info">
-                    💡 Ingresa el monto que deseas abonar al tratamiento
+                    <i class='bx bx-info-circle text-blue-600'></i>
+                    Ingresa el monto que deseas abonar al tratamiento
                   </div>
                 </div>
               </div>
 
               <div class="form-group">
-                <label>📝 Descripción</label>
+                <label class="flex items-center gap-2">
+                  <i class='bx bx-text text-gray-600'></i>
+                  Descripción
+                </label>
                 <input 
                   type="text" 
                   v-model="pago.descripcion_cuota" 
@@ -390,7 +461,10 @@
         </div>
 
         <div v-else-if="pacienteCuota" class="no-pagos">
-          <p>✅ Este paciente no tiene pagos pendientes.</p>
+          <p class="flex items-center gap-2">
+            <i class='bx bx-check-circle text-green-600'></i>
+            Este paciente no tiene pagos pendientes.
+          </p>
         </div>
       </div>
     </div>
@@ -578,12 +652,12 @@ export default {
         const response = await fetch(`/api/pagos/cuotas/${pagoId}`);
         const data = await response.json();
         
-        console.log('📊 Respuesta del servidor:', data);
+        console.log('Respuesta del servidor:', data);
         
         if (data.success) {
           // Almacenar información de cuotas indexada por pago_id
           this.cuotasDetalle[pagoId] = data.cuotas;
-          console.log(`✅ Cuotas cargadas para pago ${pagoId}:`, data.cuotas);
+          console.log(`Cuotas cargadas para pago ${pagoId}:`, data.cuotas);
           
           // Forzar reactividad de Vue
           this.$forceUpdate();
@@ -603,7 +677,7 @@ export default {
       console.log('📋 Pago:', pago);
       console.log('🔢 Cuota seleccionada:', pago.numero_cuota);
       console.log('🏷️ Modalidad pago:', pago.modalidad_pago);
-      console.log('📊 Cuotas disponibles:', this.cuotasDetalle[pago.id]);
+      console.log('Cuotas disponibles:', this.cuotasDetalle[pago.id]);
       
       // Validar que tenemos todos los datos necesarios
       if (!pago.modalidad_pago || pago.modalidad_pago !== 'cuotas_fijas') {
@@ -648,7 +722,7 @@ export default {
         const montoNumerico = parseFloat(cuotaSeleccionada.monto);
         const montoFormateado = this.formatearMontoInput(montoNumerico);
         
-        console.log('💰 Monto a autocompletar:', montoNumerico, '→', montoFormateado);
+        console.log('Monto a autocompletar:', montoNumerico, '→', montoFormateado);
         
         pago.monto_cuota = montoFormateado;
         
@@ -659,9 +733,9 @@ export default {
         pago.descripcion_cuota = `Cuota ${pago.numero_cuota} de ${pago.total_cuotas} - ${pago.descripcion}`;
         
         // Mostrar mensaje de éxito
-        this.mostrarMensaje(`✅ Monto autocompletado: $${this.formatearMonto(cuotaSeleccionada.monto)}`, 'exito');
+        this.mostrarMensaje(`Monto autocompletado: $${this.formatearMonto(cuotaSeleccionada.monto)}`, 'exito');
         
-        console.log('✅ Monto autocompletado exitosamente:', montoFormateado);
+        console.log('Monto autocompletado exitosamente:', montoFormateado);
         
         // Remover la clase de animación después de un tiempo
         setTimeout(() => {
@@ -1139,32 +1213,34 @@ export default {
 
 .header-section {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 40px;
 }
 
 .title {
-  color: #a259ff;
-  font-size: 2.5rem;
-  margin-bottom: 10px;
+  color: #374151;
+  font-size: 2.8rem;
+  margin-bottom: 16px;
+  font-weight: 700;
 }
 
 .subtitle {
-  color: #666;
-  font-size: 1.1rem;
+  color: #6b7280;
+  font-size: 1.2rem;
+  margin-bottom: 0;
 }
 
 .opciones-principales {
   display: flex;
-  gap: 15px;
-  margin-bottom: 30px;
+  gap: 20px;
+  margin-bottom: 40px;
   justify-content: center;
   flex-wrap: wrap;
 }
 
 .opcion-btn {
   background: white;
-  border: 2px solid #e1e5e9;
-  padding: 15px 25px;
+  border: 2px solid #e5e7eb;
+  padding: 18px 32px;
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -1230,35 +1306,39 @@ export default {
 
 .contenido-principal {
   background: white;
-  padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  margin-bottom: 32px;
 }
 
 .form-pago {
-  max-width: 600px;
+  max-width: 700px;
+  margin: 0 auto;
 }
 
 .form-group {
-  margin-bottom: 20px;
+  margin-bottom: 32px;
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 8px;
-  font-weight: 500;
-  color: #333;
+  margin-bottom: 12px;
+  font-weight: 600;
+  color: #374151;
+  font-size: 1rem;
 }
 
 .form-group input,
 .form-group select,
 .form-group textarea {
   width: 100%;
-  padding: 12px;
-  border: 2px solid #e1e5e9;
-  border-radius: 8px;
+  padding: 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
   font-size: 1rem;
-  transition: border-color 0.3s ease;
+  transition: all 0.3s ease;
+  background-color: #ffffff;
 }
 
 .form-group input:focus,
@@ -1266,6 +1346,7 @@ export default {
 .form-group textarea:focus {
   outline: none;
   border-color: #a259ff;
+  box-shadow: 0 0 0 3px rgba(162, 89, 255, 0.1);
 }
 
 .form-group textarea {
@@ -1285,20 +1366,26 @@ export default {
 .btn-pagar {
   background: #a259ff;
   color: white;
-  padding: 12px 30px;
+  padding: 16px 40px;
   border: none;
-  border-radius: 8px;
-  font-weight: 500;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 1.1rem;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 10px;
-  transition: background 0.3s ease;
+  justify-content: center;
+  gap: 12px;
+  transition: all 0.3s ease;
+  margin-top: 24px;
+  min-height: 56px;
 }
 
 .btn-registrar:hover,
 .btn-pagar:hover {
   background: #8a47e8;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(162, 89, 255, 0.3);
 }
 
 .btn-registrar:disabled,
@@ -1787,5 +1874,24 @@ export default {
   background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
   color: #721c24;
   border: 1px solid #f5c6cb;
+}
+
+/* Estilos para títulos con iconos */
+.seccion-registrar h3,
+.seccion-ver h3,
+.seccion-cuota h3 {
+  margin-bottom: 2rem;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #374151;
+}
+
+.autocompletado-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-style: italic;
+  color: #6b7280;
+  margin-top: 8px;
 }
 </style>

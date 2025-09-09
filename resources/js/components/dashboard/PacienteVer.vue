@@ -298,20 +298,6 @@
                     <i class='bx bx-show text-lg'></i>
                   </button>
                   <button 
-                    @click.stop="editarPaciente(paciente)"
-                    class="p-2 text-green-600 hover:bg-green-100 rounded-lg transition-all duration-200"
-                    title="Editar paciente"
-                  >
-                    <i class='bx bx-edit text-lg'></i>
-                  </button>
-                  <button 
-                    @click.stop="agendarCita(paciente)"
-                    class="p-2 text-purple-600 hover:bg-purple-100 rounded-lg transition-all duration-200"
-                    title="Agendar cita"
-                  >
-                    <i class='bx bx-calendar-plus text-lg'></i>
-                  </button>
-                  <button 
                     @click.stop="eliminarPaciente(paciente)"
                     class="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-all duration-200"
                     title="Eliminar paciente"
@@ -508,17 +494,26 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div class="text-center p-4 bg-blue-50 rounded-lg border border-blue-200">
                 <i class='bx bx-calendar-check text-3xl text-blue-600 mb-2'></i>
-                <div class="text-2xl font-bold text-blue-800">-</div>
+                <div v-if="estadisticasPaciente.cargando" class="text-2xl font-bold text-blue-800">
+                  <i class='bx bx-loader-alt bx-spin'></i>
+                </div>
+                <div v-else class="text-2xl font-bold text-blue-800">{{ estadisticasPaciente.citas }}</div>
                 <div class="text-sm text-blue-600">Citas realizadas</div>
               </div>
               <div class="text-center p-4 bg-green-50 rounded-lg border border-green-200">
                 <i class='bx bx-health text-3xl text-green-600 mb-2'></i>
-                <div class="text-2xl font-bold text-green-800">-</div>
+                <div v-if="estadisticasPaciente.cargando" class="text-2xl font-bold text-green-800">
+                  <i class='bx bx-loader-alt bx-spin'></i>
+                </div>
+                <div v-else class="text-2xl font-bold text-green-800">{{ estadisticasPaciente.tratamientos }}</div>
                 <div class="text-sm text-green-600">Tratamientos</div>
               </div>
               <div class="text-center p-4 bg-yellow-50 rounded-lg border border-yellow-200">
                 <i class='bx bx-dollar text-3xl text-yellow-600 mb-2'></i>
-                <div class="text-2xl font-bold text-yellow-800">-</div>
+                <div v-if="estadisticasPaciente.cargando" class="text-2xl font-bold text-yellow-800">
+                  <i class='bx bx-loader-alt bx-spin'></i>
+                </div>
+                <div v-else class="text-2xl font-bold text-yellow-800">{{ estadisticasPaciente.pagos }}</div>
                 <div class="text-sm text-yellow-600">Pagos realizados</div>
               </div>
             </div>
@@ -527,20 +522,6 @@
           <!-- Botones de acción -->
           <div class="mt-6 pt-6 border-t border-gray-200">
             <div class="flex flex-wrap gap-3 justify-center">
-              <button 
-                @click="editarPaciente(pacienteSeleccionado)"
-                class="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
-              >
-                <i class='bx bx-edit text-lg'></i>
-                Editar Paciente
-              </button>
-              <button 
-                @click="agendarCita(pacienteSeleccionado)"
-                class="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
-              >
-                <i class='bx bx-calendar-plus text-lg'></i>
-                Agendar Cita
-              </button>
               <button 
                 @click="cerrarModal"
                 class="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-xl hover:from-gray-600 hover:to-gray-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
@@ -584,6 +565,14 @@ export default {
     const mostrarModal = ref(false)
     const pacienteSeleccionado = ref(null)
 
+    // Estadísticas del paciente seleccionado
+    const estadisticasPaciente = ref({
+      citas: 0,
+      tratamientos: 0,
+      pagos: 0,
+      cargando: false
+    })
+
     // Cargar pacientes desde la API
     const cargarPacientes = async () => {
       loading.value = true
@@ -596,6 +585,54 @@ export default {
         console.error('Error:', err)
       } finally {
         loading.value = false
+      }
+    }
+
+    // Cargar estadísticas específicas de un paciente
+    const cargarEstadisticasPaciente = async (pacienteId) => {
+      estadisticasPaciente.value.cargando = true
+      console.log('🔍 Cargando estadísticas para paciente ID:', pacienteId)
+      
+      try {
+        // Cargar citas del paciente
+        console.log('📅 Consultando citas...')
+        const citasResponse = await axios.get(`/api/citas?paciente_id=${pacienteId}`)
+        const citas = citasResponse.data || []
+        estadisticasPaciente.value.citas = citas.length
+        console.log('✅ Citas encontradas:', citas.length, citas)
+
+        // Cargar tratamientos del paciente
+        console.log('🦷 Consultando tratamientos...')
+        const tratamientosResponse = await axios.get(`/api/tratamientos/paciente/${pacienteId}`)
+        const tratamientos = tratamientosResponse.data.data || tratamientosResponse.data || []
+        estadisticasPaciente.value.tratamientos = tratamientos.length
+        console.log('✅ Tratamientos encontrados:', tratamientos.length, tratamientos)
+
+        // Cargar pagos del paciente
+        console.log('💰 Consultando pagos...')
+        const pagosResponse = await axios.get(`/api/pagos/paciente/${pacienteId}`)
+        console.log('📄 Respuesta completa de pagos:', pagosResponse.data)
+        const pagosData = pagosResponse.data
+        if (pagosData.success && pagosData.pagos) {
+          estadisticasPaciente.value.pagos = pagosData.pagos.length
+          console.log('✅ Pagos encontrados:', pagosData.pagos.length, pagosData.pagos)
+        } else {
+          estadisticasPaciente.value.pagos = 0
+          console.log('⚠️ No se encontraron pagos o formato incorrecto:', pagosData)
+        }
+
+      } catch (err) {
+        console.error('❌ Error al cargar estadísticas del paciente:', err)
+        if (err.response) {
+          console.error('📡 Respuesta del servidor:', err.response.status, err.response.data)
+        }
+        // Mantener valores en 0 si hay error
+        estadisticasPaciente.value.citas = 0
+        estadisticasPaciente.value.tratamientos = 0
+        estadisticasPaciente.value.pagos = 0
+      } finally {
+        estadisticasPaciente.value.cargando = false
+        console.log('🏁 Estadísticas finales:', estadisticasPaciente.value)
       }
     }
 
@@ -821,26 +858,24 @@ export default {
     }
 
     // Acciones de pacientes
-    const verDetallePaciente = (paciente) => {
+    const verDetallePaciente = async (paciente) => {
       pacienteSeleccionado.value = paciente
       mostrarModal.value = true
+      
+      // Cargar estadísticas del paciente
+      await cargarEstadisticasPaciente(paciente.id)
     }
 
     const cerrarModal = () => {
       mostrarModal.value = false
       pacienteSeleccionado.value = null
-    }
-
-    const editarPaciente = (paciente) => {
-      console.log('Editar paciente:', paciente)
-      // Aquí implementarías la navegación a la página de edición
-      // this.$router.push(`/pacientes/editar/${paciente.id}`)
-    }
-
-    const agendarCita = (paciente) => {
-      console.log('Agendar cita para:', paciente)
-      // Aquí implementarías la navegación a la página de citas
-      // this.$router.push(`/citas/nueva?paciente=${paciente.id}`)
+      // Limpiar estadísticas
+      estadisticasPaciente.value = {
+        citas: 0,
+        tratamientos: 0,
+        pagos: 0,
+        cargando: false
+      }
     }
 
     const eliminarPaciente = (paciente) => {
@@ -979,6 +1014,7 @@ export default {
       // Modal
       mostrarModal,
       pacienteSeleccionado,
+      estadisticasPaciente,
       
       // Computadas
       totalPacientes,
@@ -989,6 +1025,7 @@ export default {
       
       // Métodos
       cargarPacientes,
+      cargarEstadisticasPaciente,
       formatearFecha,
       calcularEdad,
       esCumpleanosMes,
@@ -1000,8 +1037,6 @@ export default {
       refrescarLista,
       verDetallePaciente,
       cerrarModal,
-      editarPaciente,
-      agendarCita,
       eliminarPaciente,
       exportarPDF
     }

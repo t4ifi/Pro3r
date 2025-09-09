@@ -1,24 +1,56 @@
 <template>
   <div>
     <transition name="fade-zoom">
-      <div v-if="!loggedIn && !cargando" class="login-bg">
+      <div v-if="!loggedIn" class="login-bg">
         <div class="login">
           <div class="login__content">
             <div class="login__img"></div>
             <div class="login__forms">
-              <form @submit.prevent="login">
+              <form @submit.prevent="login" :class="{ 'form-shake': showError }">
                 <h1 class="login__title">Iniciar Sesión</h1>
                 <div class="login__box">
-                  <i class='bx bx-user login__icon'></i>
-                  <input type="text" v-model="usuario" placeholder="Nombre de usuario" class="login__input" />
+                  <i class='bx bx-user login__icon' :class="{ 'icon-error': error }"></i>
+                  <input 
+                    type="text" 
+                    v-model="usuario" 
+                    @input="clearError"
+                    placeholder="Nombre de usuario" 
+                    class="login__input" 
+                    :class="{ 'input-error': error }"
+                    :disabled="loggingIn"
+                    ref="usuarioInput"
+                  />
                 </div>
                 <div class="login__box">
-                  <i class='bx bx-lock-alt login__icon'></i>
-                  <input type="password" v-model="password" placeholder="Contraseña" class="login__input" />
+                  <i class='bx bx-lock-alt login__icon' :class="{ 'icon-error': error }"></i>
+                  <input 
+                    type="password" 
+                    v-model="password" 
+                    @input="clearError"
+                    placeholder="Contraseña" 
+                    class="login__input" 
+                    :class="{ 'input-error': error }"
+                    :disabled="loggingIn" 
+                  />
                 </div>
-                <button type="submit" class="login__button">Entrar</button>
-                <div v-if="error" class="error-message">{{ error }}</div>
-                <div v-if="success" class="success-message success-message-small">{{ success }}</div>
+                <button type="submit" class="login__button" :disabled="loggingIn">
+                  <span v-if="!loggingIn">Entrar</span>
+                  <span v-else class="button-loading">
+                    <svg class="spinner" width="16" height="16" viewBox="0 0 16 16">
+                      <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-dasharray="31.416" stroke-dashoffset="31.416">
+                        <animate attributeName="stroke-dasharray" dur="2s" values="0 31.416;15.708 15.708;0 31.416" repeatCount="indefinite"/>
+                        <animate attributeName="stroke-dashoffset" dur="2s" values="0;-15.708;-31.416" repeatCount="indefinite"/>
+                      </circle>
+                    </svg>
+                    Accediendo...
+                  </span>
+                </button>
+                <div v-if="error" class="error-container">
+                  <div class="error-message">
+                    <i class='bx bx-error-circle'></i>
+                    <span>{{ error }}</span>
+                  </div>
+                </div>
               </form>
               <footer>© 2025 NullDevs. Todos los derechos reservados.</footer>
             </div>
@@ -26,12 +58,6 @@
         </div>
       </div>
     </transition>
-    <transition name="fade-in">
-      <div v-if="cargando || mostrandoLoader" class="loader-overlay">
-        <div class="loader-spinner"></div>
-      </div>
-    </transition>
-    <!-- El dashboard solo se muestra por router-view tras la redirección -->
   </div>
 </template>
 
@@ -45,11 +71,11 @@ export default {
       usuario: '',
       password: '',
       error: '',
-      success: '',
       loggedIn: false,
       usuarioGuardado: null,
       cargando: false,
-      mostrandoLoader: false
+      loggingIn: false,
+      showError: false
     };
   },
   mounted() {
@@ -60,13 +86,14 @@ export default {
   },
   methods: {
     async login() {
-      this.error = '';
-      this.success = '';
+      this.clearError();
+      
       if (!this.usuario || !this.password) {
-        this.error = 'Por favor, completá todos los campos.';
+        this.showErrorMessage('Por favor, completá todos los campos.');
         return;
       }
-      this.cargando = true;
+      
+      this.loggingIn = true;
 
       try {
         const response = await axios.post('/api/login', {
@@ -74,36 +101,62 @@ export default {
           password: this.password
         });
         
-        // Login exitoso
+        // Guardar datos del usuario
         sessionStorage.setItem('usuario', JSON.stringify(response.data.data));
         this.usuarioGuardado = response.data.data;
-        this.success = response.data.message || 'Inicio de sesión exitoso';
-        this.cargando = false;
         
-        // Mostrar mensaje de éxito por 1.5 segundos, luego spinner
+        // Pequeña pausa para mejor UX, luego redirección directa
         setTimeout(() => {
-          this.success = ''; // Ocultar mensaje de éxito
-          this.cargando = true; // Mostrar spinner
-          setTimeout(() => {
-            this.loggedIn = true;
-            this.cargando = false;
-            this.mostrandoLoader = true;
-            setTimeout(() => {
-              if (this.usuarioGuardado.rol === 'dentista') {
-                this.$router.push('/panel-dentista');
-              } else {
-                this.$router.push('/panel-recepcionista');
-              }
-            }, 700);
-          }, 800); // Spinner por 0.8 segundos
-        }, 1500);
+          this.loggedIn = true;
+          this.loggingIn = false;
+          
+          // Redirección inmediata al dashboard correspondiente
+          if (this.usuarioGuardado.rol === 'dentista') {
+            this.$router.push('/panel-dentista');
+          } else {
+            this.$router.push('/panel-recepcionista');
+          }
+        }, 400); // Solo 0.4 segundos para que sea más fluido
         
       } catch (err) {
-        // Error de credenciales o conexión
-        console.log('🔐 Incorrecto... Curioso');
-        this.error = err.response?.data?.message || 'Credenciales incorrectas.';
-        this.cargando = false;
+        console.log('🔐 Credenciales incorrectas');
+        this.loggingIn = false;
+        
+        // Limpiar contraseña por seguridad
+        this.password = '';
+        
+        // Determinar el mensaje de error apropiado
+        let errorMsg = 'Usuario o contraseña incorrectos. Verificá tus datos.';
+        if (err.code === 'NETWORK_ERROR' || !err.response) {
+          errorMsg = 'Error de conexión. Verificá tu conexión a internet.';
+        } else if (err.response?.status === 429) {
+          errorMsg = 'Demasiados intentos. Esperá unos minutos antes de intentar de nuevo.';
+        }
+        
+        this.showErrorMessage(errorMsg);
       }
+    },
+    
+    showErrorMessage(message) {
+      this.error = message;
+      this.showError = true;
+      
+      // Enfocar el campo usuario si está vacío, sino enfocar password
+      this.$nextTick(() => {
+        if (!this.usuario) {
+          this.$refs.usuarioInput?.focus();
+        }
+      });
+      
+      // Remover la animación después de que termine
+      setTimeout(() => {
+        this.showError = false;
+      }, 600);
+    },
+    
+    clearError() {
+      this.error = '';
+      this.showError = false;
     }
   }
 };
@@ -193,6 +246,22 @@ export default {
   outline: none;
   border-color: #6b4eff;
 }
+.login__input:disabled {
+  background-color: #f9fafb;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+.login__input.input-error {
+  border-color: #ef4444;
+  background-color: #fef2f2;
+}
+.login__input.input-error:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+.login__icon.icon-error {
+  color: #ef4444;
+}
 .login__button {
   display: block;
   width: 100%;
@@ -204,36 +273,72 @@ export default {
   font-weight: bold;
   text-decoration: none;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: all 0.3s ease;
   border: none;
+  position: relative;
 }
-.login__button:hover {
+.login__button:hover:not(:disabled) {
   background-color: #573dd1;
+  transform: translateY(-1px);
+}
+.login__button:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+}
+.button-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.spinner {
+  animation: rotate 1s linear infinite;
+}
+@keyframes rotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 .login__button:focus {
   outline: none;
   box-shadow: 0 0 0 3px rgba(162, 89, 255, 0.3);
 }
+.error-container {
+  margin-top: 15px;
+}
 .error-message {
-  margin-top: 15px;
-  text-align: center;
-  color: #d33;
-  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  color: #dc2626;
+  font-size: 0.9rem;
+  animation: slideDown 0.3s ease-out;
 }
-.success-message {
-  margin-top: 15px;
-  text-align: center;
-  color: #28a745;
-  font-size: 0.95rem;
-  min-height: 1.2em;
-  display: block;
+.error-message i {
+  font-size: 1.1rem;
+  flex-shrink: 0;
 }
-.success-message-small {
-  color: #22c55e;
-  font-size: 0.95rem;
-  margin-top: 0.5rem;
-  text-align: center;
-  font-weight: 600;
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.form-shake {
+  animation: shake 0.6s ease-in-out;
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-8px); }
+  20%, 40%, 60%, 80% { transform: translateX(8px); }
 }
 footer {
   margin-top: 20px;
@@ -246,61 +351,13 @@ footer {
     padding: 30px 20px;
   }
 }
+
+/* Transiciones */
 .fade-zoom-enter-active, .fade-zoom-leave-active {
-  transition: opacity 0.7s, transform 0.7s;
+  transition: all 0.4s ease;
 }
-.fade-zoom-enter, .fade-zoom-leave-to, .fade-out {
+.fade-zoom-enter, .fade-zoom-leave-to {
   opacity: 0;
   transform: scale(0.95);
-}
-.fade-in-enter-active {
-  transition: opacity 1s;
-}
-.fade-in-enter {
-  opacity: 0;
-}
-.loader-overlay {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(255,255,255,0.7);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 2000;
-}
-.loader-spinner {
-  border: 8px solid #f3f3f3;
-  border-top: 8px solid #6b4eff;
-  border-radius: 50%;
-  width: 70px;
-  height: 70px;
-  animation: spin 1s linear infinite;
-}
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-.bienvenida-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 60vh;
-  background: #fff;
-  border-radius: 10px;
-  box-shadow: 0 0 20px rgba(0,0,0,0.08);
-  margin: 40px auto;
-  max-width: 400px;
-  padding: 40px 30px;
-}
-.bienvenida-titulo {
-  color: #28a745;
-  font-size: 2rem;
-  margin-bottom: 1rem;
-}
-.bienvenida-texto {
-  color: #333;
-  font-size: 1.1rem;
-  text-align: center;
 }
 </style>
