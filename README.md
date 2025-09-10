@@ -14,7 +14,7 @@ DentalSync es un sistema integral de gestión para consultorios dentales, desarr
 - **📋 Alison Silveira** - Documentadora
 
 #### 🎯 **Contexto Académico**
-- **Institución**: Bachillerato Tecnológico
+- **Institución**: IAE Melo
 - **Nivel**: 3er Año
 - **Especialización**: Informática
 - **Período**: 2025
@@ -995,7 +995,7 @@ El sistema de pagos incluye documentación completa y profesional:
 ---
 
 **© 2025 DentalSync - Sistema de Gestión Dental**  
-**🎓 Proyecto de Egreso - 3ro de Bachillerato | Equipo NullDevs**  
+**🎓 Proyecto de Egreso - 3ro de Bachillerato | IAE Melo | Equipo NullDevs**  
 **Desarrollado con ❤️ para consultorios dentales modernos**
 
 ### 👥 **Integrantes del Equipo NullDevs**
@@ -1332,7 +1332,7 @@ validarMontoCuota(pago) {
 ---
 
 **© 2025 DentalSync - Sistema de Gestión Dental**  
-**🎓 Proyecto de Egreso - 3ro de Bachillerato | Equipo NullDevs**  
+**🎓 Proyecto de Egreso - 3ro de Bachillerato | IAE Melo | Equipo NullDevs**  
 **Desarrollado con ❤️ para consultorios dentales modernos**
 
 ### 👥 **Integrantes del Equipo NullDevs**

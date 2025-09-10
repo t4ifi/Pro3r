@@ -58,13 +58,18 @@ Bienvenido a la documentación completa del sistema DentalSync - Una solución i
 1. Consulta la [documentación de módulos específicos](./technical/)
 2. Revisa los [changelogs](./changelogs/) para nuevas funcionalidades
 
-## 📊 Estado del Proyecto
+## 📊 Estado de Documentación
 
-- **Controladores**: 3/8 completamente documentados (37.5%)
-- **Base de datos**: Esquema documentado
-- **APIs**: Documentación completa disponible
-- **Seguridad**: Implementaciones documentadas
-- **Testing**: En desarrollo
+#### Controllers (Controladores) ✅ COMPLETADO
+- [AuthController.md](controllers/AuthController.md) - Sistema de autenticación y autorización
+- [PacienteController.md](controllers/PacienteController.md) - Gestión completa de pacientes
+- [CitaController.md](controllers/CitaController.md) - Sistema de citas y agendamiento
+- [TratamientoController.md](controllers/TratamientoController.md) - Gestión de tratamientos
+- [PagoController.md](controllers/PagoController.md) - Sistema financiero y pagos
+- [PlacaController.md](controllers/PlacaController.md) - Gestión de placas dentales
+- [UsuarioController.md](controllers/UsuarioController.md) - Administración de usuarios
+
+**Progreso Total: 7/7 controladores (100% COMPLETADO)**
 
 ## 🔄 Última Actualización
 

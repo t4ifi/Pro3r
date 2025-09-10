@@ -6,11 +6,12 @@
 - **Nombre del Proyecto:** DentalSync
 - **Nombre del Equipo:** NullDevs
 - **Integrantes del Equipo:**
-  - Fernández, Ana
-  - García, Juan
-  - López, María
-  - Pérez, Carlos
-- **Institución, Curso, Grado y Grupo:** Escuela Técnica Superior de Melo, EMT Informática - 3°
+  - Andrés Núñez
+  - Lázaro Coronel
+  - Adrián Martínez
+  - Florencia Passo
+  - Alison Silveira
+- **Institución, Curso, Grado y Grupo:** IAE Melo, Informática - 3°
 - **Fecha:** Septiembre 2025
 
 ---
