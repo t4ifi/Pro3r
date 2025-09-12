@@ -1,8 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Login from './components/Login.vue';
 import Dashboard from './components/Dashboard.vue';
-import CitasCalendario from './components/dashboard/CitasCalendario.vue';
-import CitasAgendar from './components/dashboard/CitasAgendar.vue';
+import Citas from './components/dashboard/Citas.vue';
+import AgendarCita from './components/dashboard/AgendarCita.vue';
 import PacienteVer from './components/dashboard/PacienteVer.vue';
 import PacienteCrear from './components/dashboard/PacienteCrear.vue';
 import PacienteEditar from './components/dashboard/PacienteEditar.vue';
@@ -26,13 +26,13 @@ const routes = [
       {
         path: 'calendario',
         name: 'CitasCalendario',
-        component: CitasCalendario,
+        component: Citas,
         meta: { requiresAuth: true }
       },
       {
         path: 'agendar',
         name: 'CitasAgendar',
-        component: CitasAgendar,
+        component: AgendarCita,
         meta: { requiresAuth: true }
       },
       {
